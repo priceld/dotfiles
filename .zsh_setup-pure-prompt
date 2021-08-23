@@ -1,0 +1,4 @@
+fpath+=$HOME/cant-take-it-with-you/pure
+
+autoload -U promptinit; promptinit
+prompt pure

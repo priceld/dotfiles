@@ -1,0 +1,44 @@
+export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+
+# postgres
+export PATH="/usr/local/opt/postgresql@12/bin:$PATH"
+export PGDATA=/usr/local/var/postgresql@12
+
+export GIT_ROOT=$HOME/work/learn
+export PATH=$PATH:$GIT_ROOT/bin
+source $HOME/work/learn.util/sourceall.sh
+source $HOME/scripts/current_sp.sh
+
+# This is to get yawsso in the PATH
+export PATH="/Users/loaner/Library/Python/3.8/bin:$PATH"
+
+# The following are from: https://confluence.bbpd.io/pages/viewpage.action?spaceKey=~rbogle&title=yawsso+--+AWS+CLI+auth+with+SSO+and+Okta
+
+# check on my Env vars
+function aws-env(){
+    env | grep "AWS"
+}
+ 
+# list all the profiles in my config
+function aws-profiles(){
+    grep '^\[.*.\]$' ~/.aws/config | tr -d '^[]$'
+}
+ 
+# use yawsso to login with a profile and set the env vars
+function aws-login(){
+    eval $( $(which yawsso) login --profile $@ -e);
+}
+ 
+# check who's credentials are set in my env
+function aws-whoami(){
+    aws sts get-caller-identity
+}
+ 
+# switch to a different profile and/or account and set those env vars
+function assumerole(){
+    eval $( $(which yawsso) -p $@ -e);
+}
+
+# Back to my own stuff:
+alias sblogin="aws-login sandbox-poweruser && calogin"
+alias calogin="export CODEARTIFACT_FNDS_AUTH_TOKEN=`aws codeartifact get-authorization-token --region us-east-1 --domain packages --domain-owner 159633141984 --query authorizationToken --output text`"
