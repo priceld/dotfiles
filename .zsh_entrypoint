@@ -1,0 +1,25 @@
+zmodload zsh/zprof
+
+# from https://medium.com/@dannysmith/little-thing-2-speeding-up-zsh-f1860390f92
+autoload -Uz compinit
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
+compinit -C
+
+# from: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
+timezsh() {
+  shell=${1-$SHELL}
+  for i in $(seq 1 10); do /usr/bin/time $shell -i -c exit; done
+}
+
+# Load Oh My Zsh
+#echo "Loading oh my zsh..."
+source ~/dotfiles/.zsh_setup-oh-my-zsh
+
+#echo "Loading pure prompt..."
+source ~/dotfiles/.zsh_setup-pure-prompt
+
+# Setup work stuff
+#echo "Setting up work stuff..."
+source ~/dotfiles/.zsh_setup-bb  
