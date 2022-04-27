@@ -21,7 +21,7 @@ fi
 
 if [[ ! -e ./Snazzy.terminal ]]; then
   echo "Downloading Snazzy Terminal theme..."
-  curl https://raw.githubusercontent.com/sindresorhus/terminal-snazzy/main/Snazzy.terminal -o Snazzy.terminal -s
+  curl https://raw.githubusercontent.com/sindresorhus/terminal-snazzy/main/Snazzy.terminal -o /tmp/Snazzy.terminal -s
   # Install Snazzy theme and make default
   # Based on: https://github.com/kentcdodds/dotfiles/blob/master/.macos
   osascript <<EOD
@@ -35,7 +35,7 @@ tell application "Terminal"
   (* Open the custom theme so that it gets added to the list
       of available terminal themes (note: this will open two
       additional terminal windows). *)
-  do shell script "open '$HOME/dotfiles/" & themeName & ".terminal'"
+  do shell script "open '/tmp/" & themeName & ".terminal'"
   (* Wait a little bit to ensure that the custom theme is added. *)
   delay 1
   (* Set the custom theme as the default terminal theme. *)
