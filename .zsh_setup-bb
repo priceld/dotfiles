@@ -44,3 +44,6 @@ function calogin() {
     export CODEARTIFACT_FNDS_AUTH_TOKEN=`aws codeartifact get-authorization-token --region us-east-1 --domain packages --domain-owner 159633141984 --query authorizationToken --output text`
 }
 alias sblogin="aws-login sandbox-poweruser && calogin"
+
+source $(brew --prefix asdf)/asdf.sh
+export KUBECONFIG=~/.kube/config
