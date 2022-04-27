@@ -25,7 +25,7 @@ ZSH_CUSTOM=~/dotfiles/zsh_custom
 # Recommended by: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
 export NVM_LAZY_LOAD=true
 export NVM_COMPLETION=true
-plugins=(zsh-nvm git zsh-syntax-highlighting)
+plugins=(fzf-tab zsh-nvm git zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 

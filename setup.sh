@@ -6,6 +6,12 @@ if [[ ! -d ~/.oh-my-zsh ]]; then
   sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
 fi
 
+if [[ ! -d ~/.fzf ]]; then
+  echo "Installing fzf..."
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+  ~/.fzf/install
+fi
+
 if [[ ! -d ./pure ]]; then
   echo "Installing pure prompt"
   git clone https://github.com/sindresorhus/pure.git
@@ -13,6 +19,8 @@ fi
 
 if [[ ! -d ./zsh_custom ]]; then
   mkdir -p ./zsh_custom
+  echo "Installing fzf-tab plugin..."
+  git clone https://github.com/Aloxaf/fzf-tab ./zsh_custom/plugins/fzf-tab
   echo "Installing zsh-nvm plugin..."
   git clone https://github.com/lukechilds/zsh-nvm ./zsh_custom/plugins/zsh-nvm
   echo "Installing zsh-syntax-highlighting plugin..."
