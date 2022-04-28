@@ -27,7 +27,15 @@ if [[ ! -d ./zsh_custom ]]; then
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ./zsh_custom/plugins/zsh-syntax-highlighting
 fi
 
-if [[ ! -e ./Snazzy.terminal ]]; then
+if [[ ! -d ~/.vimrc ]]; then
+  echo "Writing ~/.vimrc settings..."
+  cat << EOS >> ~/.vimrc
+:set number
+:set ruler
+EOS
+fi
+
+if [[ ! -e /tmp/Snazzy.terminal ]]; then
   echo "Downloading Snazzy Terminal theme..."
   curl https://raw.githubusercontent.com/sindresorhus/terminal-snazzy/main/Snazzy.terminal -o /tmp/Snazzy.terminal -s
   # Install Snazzy theme and make default
