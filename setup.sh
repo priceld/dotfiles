@@ -3,7 +3,7 @@
 # Install Oh My Zsh
 if [[ ! -d ~/.oh-my-zsh ]]; then
   echo "Installing Oh My Zsh, but keeping ~/.zshrc"
-  sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
+  sh -c "$(curl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
 fi
 
 if [[ ! -d ~/.fzf ]]; then
@@ -82,5 +82,5 @@ fi
 
 cat << EOF >> ~/.zshrc
 # Load my dotfiles
-source ~/dotfiles/.zsh_entrypoint
+source ~/work/dotfiles/.zsh_entrypoint
 EOF

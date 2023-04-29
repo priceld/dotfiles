@@ -1,11 +1,13 @@
 zmodload zsh/zprof
 
+# Commenting this out as oh-my-zsh already runs compinit:
+# https://gist.github.com/ctechols/ca1035271ad134841284?permalink_comment_id=4412313#gistcomment-4412313
 # from https://medium.com/@dannysmith/little-thing-2-speeding-up-zsh-f1860390f92
-autoload -Uz compinit
-for dump in ~/.zcompdump(N.mh+24); do
-  compinit
-done
-compinit -C
+# autoload -Uz compinit
+# for dump in ~/.zcompdump(N.mh+24); do
+#   compinit
+# done
+# compinit -C
 
 # from: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
 timezsh() {
@@ -15,11 +17,11 @@ timezsh() {
 
 # Load Oh My Zsh
 #echo "Loading oh my zsh..."
-source ~/dotfiles/.zsh_setup-oh-my-zsh
+source ~/work/dotfiles/.zsh_setup-oh-my-zsh
 
 #echo "Loading pure prompt..."
-source ~/dotfiles/.zsh_setup-pure-prompt
+source ~/work/dotfiles/.zsh_setup-pure-prompt
 
 # Setup work stuff
 #echo "Setting up work stuff..."
-source ~/dotfiles/.zsh_setup-bb  
+source ~/work/dotfiles/.zsh_setup-bb

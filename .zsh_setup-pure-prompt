@@ -1,4 +1,4 @@
-fpath+=$HOME/dotfiles/pure
+fpath+=$HOME/work/dotfiles/pure
 
 autoload -U promptinit; promptinit
 prompt pure

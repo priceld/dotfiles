@@ -1,7 +1,7 @@
 # Taken from: https://github.com/kentcdodds/dotfiles/blob/master/.macos
 
 # TODO: untested
-brew install coreutils git alt-tab brave-browser itsycal visual-studio-code
+brew install coreutils git alt-tab brave-browser itsycal visual-studio-code direnv
 
 # Disable automatic capitalization as it’s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
@@ -134,9 +134,3 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
   General -bool true \
   OpenWith -bool true \
   Privileges -bool true
-
-###############################################################################
-# Touchbar                                                                    #
-###############################################################################
-# TODO: I haven't verified this one:
-defaults write com.apple.touchbar.agent PresentationModeGlobal -string "fullControlStrip"

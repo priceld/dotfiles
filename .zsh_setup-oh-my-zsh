@@ -14,7 +14,7 @@ ZSH_THEME=""
 # CASE_SENSITIVE="true"
 
 # Would you like to use another custom folder than $ZSH/custom?
-ZSH_CUSTOM=~/dotfiles/zsh_custom
+ZSH_CUSTOM=~/work/dotfiles/zsh_custom
 
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
@@ -23,9 +23,9 @@ ZSH_CUSTOM=~/dotfiles/zsh_custom
 # Add wisely, as too many plugins slow down shell startup.
 
 # Recommended by: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
-export NVM_LAZY_LOAD=true
-export NVM_COMPLETION=true
-plugins=(fzf-tab zsh-nvm git zsh-syntax-highlighting)
+# export NVM_LAZY_LOAD=true
+# export NVM_COMPLETION=true
+plugins=(fzf-tab nvm git zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -54,3 +54,8 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Hmm...by default zsh uses emacs mode, but I'm guessing I should use
+# vi since I use vim more than emacs when editing files in the terminal.
+# https://thevaluable.dev/zsh-line-editor-configuration-mouseless/
+bindkey "^J" backward-kill-line
