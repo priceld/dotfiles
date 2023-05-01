@@ -1,38 +1,9 @@
 #!/usr/bin/env zsh
 
-# Install Oh My Zsh
-if [[ ! -d ~/.oh-my-zsh ]]; then
-  echo "Installing Oh My Zsh, but keeping ~/.zshrc"
-  sh -c "$(curl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc
-fi
-
-if [[ ! -d ~/.fzf ]]; then
+if [[ ! -d ~/work/.fzf ]]; then
   echo "Installing fzf..."
-  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-  ~/.fzf/install
-fi
-
-if [[ ! -d ./pure ]]; then
-  echo "Installing pure prompt"
-  git clone https://github.com/sindresorhus/pure.git
-fi
-
-if [[ ! -d ./zsh_custom ]]; then
-  mkdir -p ./zsh_custom
-  echo "Installing fzf-tab plugin..."
-  git clone https://github.com/Aloxaf/fzf-tab ./zsh_custom/plugins/fzf-tab
-  echo "Installing zsh-nvm plugin..."
-  git clone https://github.com/lukechilds/zsh-nvm ./zsh_custom/plugins/zsh-nvm
-  echo "Installing zsh-syntax-highlighting plugin..."
-  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ./zsh_custom/plugins/zsh-syntax-highlighting
-fi
-
-if [[ ! -d ~/.vimrc ]]; then
-  echo "Writing ~/.vimrc settings..."
-  cat << EOS >> ~/.vimrc
-:set number
-:set ruler
-EOS
+  git clone --depth 1 https://github.com/junegunn/fzf.git ~/work/.fzf
+  ~/work/.fzf/install
 fi
 
 if [[ ! -e /tmp/Snazzy.terminal ]]; then
@@ -40,6 +11,7 @@ if [[ ! -e /tmp/Snazzy.terminal ]]; then
   curl https://raw.githubusercontent.com/sindresorhus/terminal-snazzy/main/Snazzy.terminal -o /tmp/Snazzy.terminal -s
   # Install Snazzy theme and make default
   # Based on: https://github.com/kentcdodds/dotfiles/blob/master/.macos
+  # TODO: make the snazzy theme use a nerd font
   osascript <<EOD
 tell application "Terminal"
   local allOpenedWindows
@@ -75,12 +47,5 @@ EOD
   echo "Done!"
 fi
 
-if [[ -e ~/.zshrc ]]; then
-  echo "Found ~/.zshrc! Not overriding. You will need to manually source the entrypoint."
-  exit 1
-fi
-
-cat << EOF >> ~/.zshrc
-# Load my dotfiles
-source ~/work/dotfiles/.zsh_entrypoint
-EOF
+echo "Invoking stow to setup dotfiles..."
+stow --dir=${0:a:h} --target=~/ --no -v

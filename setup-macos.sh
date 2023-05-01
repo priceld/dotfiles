@@ -1,7 +1,10 @@
 # Taken from: https://github.com/kentcdodds/dotfiles/blob/master/.macos
 
 # TODO: untested
-brew install coreutils git alt-tab brave-browser itsycal visual-studio-code direnv
+brew install coreutils git brave-browser itsycal visual-studio-code direnv stow
+
+# Other interesting applications that I don't use much
+# brew install lazygit ffmpeg
 
 # Disable automatic capitalization as it’s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false

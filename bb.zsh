@@ -11,6 +11,9 @@ source $HOME/scripts/current_sp.sh
 
 # Zscaler cert for node.
 export NODE_EXTRA_CA_CERTS=~/work/zscaler-certs/ZscalerRootCA.pem
+if [ ! -f "$NODE_EXTRA_CA_CERTS" ]; then
+  echo "!!! Could not find Zscaler Root CA certificat !!!"
+fi
 
 # Setup direnv hook for ZSH
 eval "$(direnv hook zsh)"

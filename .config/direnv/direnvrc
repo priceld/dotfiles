@@ -1,4 +1,3 @@
-cat << EOS >> ~/.config/direnv/direnvrc
 # Based on https://github.com/direnv/direnv/wiki/Node
 # This allows .envrc scripts to use "use nvm VERSION"
 use_nvm() {
@@ -17,4 +16,3 @@ use_nvm() {
     echo "Could not find nvm."
   fi
 }
-EOS
