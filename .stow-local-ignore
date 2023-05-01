@@ -1,3 +1,7 @@
+.git
 .gitignore
 setup-macos.sh
 setup.sh
+README.md
+zsh_custom
+pure

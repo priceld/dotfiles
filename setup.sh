@@ -48,4 +48,4 @@ EOD
 fi
 
 echo "Invoking stow to setup dotfiles..."
-stow --dir=${0:a:h} --target=~/ --no -v
+stow --dir=${0:a:h} --target=$HOME .
