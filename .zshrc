@@ -57,7 +57,7 @@ timezsh() {
   for i in $(seq 1 10); do /usr/bin/time $shell -i -c exit; done
 }
 
-[ -f ~/work/.fzf.zsh ] && source ~/work/.fzf.zsh
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Load work stuff
 source ./bb.zsh
