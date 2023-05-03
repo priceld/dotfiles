@@ -60,4 +60,4 @@ timezsh() {
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Load work stuff
-source ./bb.zsh
+source ~/bb.zsh

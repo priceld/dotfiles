@@ -47,5 +47,10 @@ EOD
   echo "Done!"
 fi
 
+if [[ ! -f "${0:a:h}/.config/alacritty/catppuccin" ]]; then
+  echo "Cloning catppuccin theme for alacritty..."
+  git clone https://github.com/catppuccin/alacritty.git "${0:a:h}/.config/alacritty/catppuccin"
+fi
+
 echo "Invoking stow to setup dotfiles..."
-stow --dir=${0:a:h} --target=$HOME .
+stow --dir="${0:a:h}" --target=$HOME .

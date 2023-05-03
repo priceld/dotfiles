@@ -1,43 +1,59 @@
-# From https://github.com/alebelcor/alacritty-snazzy/blob/master/snazzy.yml
+
+env:
+  TERM: xterm-256color
 draw_bold_text_with_bright_colors: true
+import:
+  - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-macchiato.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-frappe.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-latte.yml
+# I've found that starting out with catppuccin and customizing a few colors works well
 colors:
   primary:
     background: '#282a36'
     foreground: '#eff0eb'
 
-  cursor:
-    cursor: '#97979b'
+#   cursor:
+#     cursor: '#97979b'
 
-  selection:
-    text:       '#282a36'
-    background: '#feffff'
+#   selection:
+#     text:       '#282a36'
+#     background: '#feffff'
 
   normal:
-    black:   '#282a36'
-    red:     '#ff5c57'
-    green:   '#5af78e'
-    yellow:  '#f3f99d'
-    blue:    '#57c7ff'
-    magenta: '#ff6ac1'
-    cyan:    '#9aedfe'
-    white:   '#f1f1f0'
+#     black:   '#282a36'
+    red:     '#ff8480'
+#     green:   '#5af78e'
+#     yellow:  '#f3f99d'
+#     blue:    '#57c7ff'
+    magenta: '#ed91d5'
+#     cyan:    '#9aedfe'
+#     white:   '#f1f1f0'
 
   bright:
-    black:   '#686868'
-    red:     '#ff5c57'
-    green:   '#5af78e'
-    yellow:  '#f3f99d'
-    blue:    '#57c7ff'
-    magenta: '#ff6ac1'
-    cyan:    '#9aedfe'
-    white:   '#eff0eb'
+#     black:   '#686868'
+    red:     '#ff8480'
+#     green:   '#5af78e'
+#     yellow:  '#f3f99d'
+#     blue:    '#57c7ff'
+    magenta: '#ed91d5'
+#     cyan:    '#9aedfe'
+#     white:   '#eff0eb'
 
 font:
-  size: 14.0
+  size: 18.0
   normal:
-    family: JetBrainsMonoNL Nerd Font Mono
-    #    family: MesloLGS Nerd Font Mono
+    family: UbuntuMono Nerd Font Mono
+    # family: JetBrainsMonoNL Nerd Font Mono
+    # family: MesloLGS Nerd Font Mono
 window:
   dimensions:
     columns: 100
     lines: 44
+hints:
+  enabled:
+   - hyperlinks: true
+     command: open
+     mouse:
+       enabled: true
+       mods: Command
