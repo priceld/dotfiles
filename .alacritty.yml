@@ -1,6 +1,13 @@
 
 env:
   TERM: xterm-256color
+# This should not be necessary, but for some reason, without this, Alacritty is
+# not loading zsh. Using the --login flag apparently makes it run as a login
+# shell, which is what is needed to load zprofile. ¯\_(ツ)_/¯
+shell:
+  program: /bin/zsh
+  args:
+   - --login
 draw_bold_text_with_bright_colors: true
 import:
   - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml
@@ -21,31 +28,31 @@ colors:
 #     background: '#feffff'
 
   normal:
-#     black:   '#282a36'
+    black:   '#373948'
     red:     '#ff8480'
 #     green:   '#5af78e'
 #     yellow:  '#f3f99d'
 #     blue:    '#57c7ff'
     magenta: '#ed91d5'
 #     cyan:    '#9aedfe'
-#     white:   '#f1f1f0'
+    # white:   '#bac2de'
 
   bright:
-#     black:   '#686868'
+    black:   '#777788'
     red:     '#ff8480'
 #     green:   '#5af78e'
 #     yellow:  '#f3f99d'
 #     blue:    '#57c7ff'
     magenta: '#ed91d5'
 #     cyan:    '#9aedfe'
-#     white:   '#eff0eb'
+    # white:   '#eff0eb'
 
 font:
   size: 18.0
   normal:
     family: UbuntuMono Nerd Font Mono
-    # family: JetBrainsMonoNL Nerd Font Mono
-    # family: MesloLGS Nerd Font Mono
+    #  family: JetBrainsMonoNL Nerd Font Mono
+    #  family: MesloLGS Nerd Font Mono
 window:
   dimensions:
     columns: 100
@@ -54,6 +61,6 @@ hints:
   enabled:
    - hyperlinks: true
      command: open
-     mouse:
-       enabled: true
-       mods: Command
+     binding:
+       key: U
+       mods: Control|Shift
