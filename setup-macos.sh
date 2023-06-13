@@ -1,10 +1,17 @@
 # Taken from: https://github.com/kentcdodds/dotfiles/blob/master/.macos
 
+# Install fnm (Fast Node Manager)
+curl -fsSL https://fnm.vercel.app/install | bash
+
 # TODO: untested
 brew install coreutils git brave-browser itsycal visual-studio-code direnv stow
 
 # Other interesting applications that I don't use much
 # brew install lazygit ffmpeg
+
+# Also, should I install nerd fonts here?
+# brew tap homebrew/cask-fonts &&
+# brew install --cask font-<FONT NAME>-nerd-font
 
 # Disable automatic capitalization as it’s annoying when typing code
 defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false

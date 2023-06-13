@@ -29,7 +29,8 @@ zinit ice atload"zstyle ':omz:plugins:nvm' lazy yes; zstyle ':omz:plugins:nvm' l
 zinit light ohmyzsh/ohmyzsh
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit snippet OMZP::git
-zinit snippet OMZP::nvm
+# I'm attempting to use fnm, so I may be able to get rid of nvm...
+# zinit snippet OMZP::nvm
 zinit snippet OMZP::aws
 zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
@@ -58,6 +59,9 @@ timezsh() {
 }
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Setup fnm ZSH hooks to trigger on CD
+eval "$(fnm env --use-on-cd)"
 
 # Load work stuff
 source ~/bb.zsh
