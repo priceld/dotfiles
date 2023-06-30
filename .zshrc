@@ -63,5 +63,8 @@ timezsh() {
 # Setup fnm ZSH hooks to trigger on CD
 eval "$(fnm env --use-on-cd)"
 
+# Enable VI-mode
+bindkey -v
+
 # Load work stuff
 source ~/bb.zsh
