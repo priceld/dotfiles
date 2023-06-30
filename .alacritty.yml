@@ -59,8 +59,15 @@ window:
     lines: 44
 hints:
   enabled:
-   - hyperlinks: true
+   - regex: "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
+             [^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+     hyperlinks: true
      command: open
      binding:
        key: U
+       mods: Control|Shift
+   - regex: "(feature/|bugfix/|origin/)[^\\s,\\)]+"
+     action: Copy
+     binding:
+       key: B
        mods: Control|Shift
