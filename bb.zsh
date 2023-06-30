@@ -31,3 +31,6 @@ export KUBECONFIG=~/.kube/config
 function calogin() {
     export CODEARTIFACT_FNDS_AUTH_TOKEN=`aws codeartifact get-authorization-token --region us-east-1 --domain packages --domain-owner 159633141984 --query authorizationToken --output text`
 }
+
+# Load worktree helpers
+source $HOME/work/dotfiles/worktrees.sh

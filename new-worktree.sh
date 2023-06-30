@@ -1,5 +1,5 @@
 ULTRA_DIR="/Users/Logan.Price/work/ultra"
-ULTRA_WORKTREE_DIR="/Users/Logan.Price/work/ultra-worktree"
+ULTRA_WORKTREE_DIR="/Users/Logan.Price/work/ultra-worktree-v3"
 if [[ ! $PWD/ = $ULTRA_WORKTREE_DIR/* ]]; then
   if [[ ! $PWD/ = $ULTRA_DIR/* ]]; then
     echo "Command must be run from an ultra directory."
@@ -9,6 +9,9 @@ fi
 
 # Use fzf to select the branch from which to create the worktree.
 branch=$(git for-each-ref --format='%(refname:short)' --sort=authorname | fzf)
+
+# Alternative: use `gh` to get a list of the PRs I'm currently reviewing and
+# fuzzy find on those.
 
 # Start a new tmux session with the branch name, if one with that name already
 # exists, attach to it.
