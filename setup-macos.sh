@@ -4,6 +4,11 @@
 curl -fsSL https://fnm.vercel.app/install | bash
 
 # TODO: untested
+# This is surely going to be painfully slow. You can apparently speed things up
+# by using "brew fetch".
+# Source: https://github.com/Homebrew/brew/issues/3261
+# And possibly by running multiple "brew install"s in parallel?
+# https://superuser.com/questions/428713/is-it-safe-to-run-multiple-brew-install-commands-at-the-same-time
 brew install coreutils git brave-browser itsycal visual-studio-code direnv stow
 
 # Other interesting applications that I don't use much
