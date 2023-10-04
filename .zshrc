@@ -1,4 +1,3 @@
-# Largely based on:
 # https://github.com/dreamsofcode-io/dotfiles/blob/main/.zshrc
 
 # Uncomment to add profiling to zsh startup
@@ -29,8 +28,8 @@ zinit ice atload"zstyle ':omz:plugins:nvm' lazy yes; zstyle ':omz:plugins:nvm' l
 zinit light ohmyzsh/ohmyzsh
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit snippet OMZP::git
-# I'm attempting to use fnm, so I may be able to get rid of nvm...
-# zinit snippet OMZP::nvm
+# # I'm attempting to use fnm, so I may be able to get rid of nvm...
+# # zinit snippet OMZP::nvm
 zinit snippet OMZP::aws
 zinit snippet OMZP::kubectl
 zinit snippet OMZP::kubectx
@@ -68,3 +67,14 @@ bindkey -v
 
 # Load work stuff
 source ~/bb.zsh
+
+# eval "$(starship init zsh)"
+alias nvchad='NVIM_APPNAME=nvchad nvim'
+alias lazy='NVIM_APPNAME=lazynvim nvim'
+
+# bun completions
+[ -s "/Users/Logan.Price/.bun/_bun" ] && source "/Users/Logan.Price/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

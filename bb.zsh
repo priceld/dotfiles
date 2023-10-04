@@ -6,6 +6,9 @@ export PGDATA="~/work/pg-data/Postgres/var-14"
 
 export GIT_ROOT=$HOME/work/learn
 export PATH=$PATH:$GIT_ROOT/bin
+# NOTE to future self: this next source call really seem to add a lot of time to the shell startup time
+# And it does so for things I don't use very often (such as startLearn). I wonder if I can get rid of
+# this and use direnv to source it when I enter the learn directory.
 source $HOME/work/learn.util/sourceall.sh
 source $HOME/scripts/current_sp.sh
 
@@ -19,6 +22,7 @@ fi
 eval "$(direnv hook zsh)"
 
 ultra-on() {
+  # May need to call ~/work/bb/blackboard/tools/admin/UpdateUltraUIDecision.sh first
   psql -d BBLEARN_GIT -U postgres -a -1 -f ~/work/learn.util/users/logan.price/enable-ultra.sql
 }
 

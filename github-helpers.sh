@@ -28,3 +28,13 @@ pr_preview() {
 # This preview is better. The template needs to be expanded to include author and labels.
 # I could probably get better formatting if I have to gotemplate do it for me...but I'd
 # have to know the preview window size...
+
+# One thing I'd like to figure out is to get the colors in the fzf preview window. Something like this helps:
+gh pr list --limit 100 | fzf --preview="CLICOLOR_FORCE=1 gh pr view {1}" --ansi --preview-window=up
+
+# I think the reason colors don't work is because STDOUT is not connected to a TTY (because of the pipe)
+# So gh removes the colors. Hence CLICOLOR_FORCE. But this only partially helps. It allows colors to be used
+# but gh changes the template it uses when it sees that STDOUT is not TTY so the preview does not look as
+# good as just running `gh pr view`
+# Ha! Got it with GH_FORCE_TTY=1
+gh pr list --limit 100 | fzf --preview="CLICOLOR_FORCE=1 GH_FORCE_TTY=1 gh pr view {1}" --ansi --preview-window=up

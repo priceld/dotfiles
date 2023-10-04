@@ -14,6 +14,12 @@ upfind () {
 }
 
 # Create a new worktree for the given branch
+# Enhancements:
+# - Adding a new worktree takes longer than I'd like, I've wondered about having
+#   a special "on deck" worktree that is always ready to go and when we create a
+#   new worktree, we just rename that folder, pull in the latest develop changes
+#   and alias the new worktree. Hmm...this is going to take some though as it
+#   isn't imediately clear how to do this sort of thing with native git commands.
 new-worktree() {
   local worktree=$1
   local worktreeRootRepo=$(upfind .bare)
@@ -50,4 +56,14 @@ switch-worktree () {
   fi
   # This is making an assumption that worktrees are always in a folder that matches their branch name...
   cd $worktreeDir
+}
+
+watch-pr() {
+  local pr=$1
+  gh pr checks $pr --watch --fail-fast --required -i 60
+  if [[ $? -eq 0 ]]; then
+    terminal-notifier -title "PR Checks Successful!" -message "Checks for PR $pr succeeded."
+  else
+    terminal-notifier -title "PR Checks Failed" -message "Checks for PR $pr failed."
+  fi
 }
