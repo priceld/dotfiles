@@ -1,0 +1,75 @@
+env:
+  TERM: xterm-256color
+# This should not be necessary, but for some reason, without this, Alacritty is
+# not loading zsh. Using the --login flag apparently makes it run as a login
+# shell, which is what is needed to load zprofile. ¯\_(ツ)_/¯
+shell:
+  program: /bin/zsh
+  args:
+    - --login
+draw_bold_text_with_bright_colors: true
+import:
+  - ~/.config/alacritty/catppuccin/catppuccin-mocha.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-macchiato.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-frappe.yml
+#  - ~/.config/alacritty/catppuccin/catppuccin-latte.yml
+# I've found that starting out with catppuccin and customizing a few colors works well
+colors:
+  primary:
+    background: "#282a36"
+    foreground: "#eff0eb"
+
+  #   cursor:
+  #     cursor: '#97979b'
+
+  #   selection:
+  #     text:       '#282a36'
+  #     background: '#feffff'
+
+  normal:
+    black: "#373948"
+    red: "#ff8480"
+    #     green:   '#5af78e'
+    #     yellow:  '#f3f99d'
+    #     blue:    '#57c7ff'
+    magenta: "#ed91d5"
+  #     cyan:    '#9aedfe'
+  # white:   '#bac2de'
+
+  bright:
+    black: "#777788"
+    red: "#ff8480"
+    #     green:   '#5af78e'
+    #     yellow:  '#f3f99d'
+    #     blue:    '#57c7ff'
+    magenta: "#ed91d5"
+#     cyan:    '#9aedfe'
+# white:   '#eff0eb'
+
+font:
+  size: 18.0
+  normal:
+    family: UbuntuMono Nerd Font Mono
+    #  family: JetBrainsMonoNL Nerd Font Mono
+    #  family: MesloLGS Nerd Font Mono
+window:
+  dimensions:
+    columns: 100
+    lines: 44
+  # MacOS, register option key as Alt
+  option_as_alt: Both
+hints:
+  enabled:
+    - regex:
+        "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)\
+        [^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+      hyperlinks: true
+      command: open
+      binding:
+        key: U
+        mods: Control|Shift
+    - regex: "(feature/|bugfix/|origin/)[^\\s,\\)]+"
+      action: Copy
+      binding:
+        key: B
+        mods: Control|Shift

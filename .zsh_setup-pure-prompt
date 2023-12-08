@@ -1,5 +1,0 @@
-fpath+=$HOME/work/dotfiles/pure
-
-autoload -U promptinit; promptinit
-prompt pure
-RPROMPT="%F{242}[%D{%I:%M:%S %p}]"
