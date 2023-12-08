@@ -38,3 +38,21 @@ function calogin() {
 
 # Load worktree helpers
 source $HOME/work/dotfiles/worktrees.sh
+
+# Watch a PR to see when its checks finish
+# TODO: make this a gh extension
+# Or just us tmux notify for this?
+watch-pr() {
+  local pr=$1
+  gh pr checks $pr --watch --fail-fast --required -i 60
+  if [[ $? -eq 0 ]]; then
+    terminal-notifier -title "PR Checks Successful!" -message "Checks for PR $pr succeeded."
+  else
+    terminal-notifier -title "PR Checks Failed" -message "Checks for PR $pr failed."
+  fi
+}
+
+# Github Copilot CLI aliases.
+alias '??'='gh copilot suggest -t shell'
+alias 'git?'='gh copilot suggest -t git'
+alias 'gh?'='gh copilot suggest -t gh'
