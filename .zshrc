@@ -71,6 +71,7 @@ source ~/bb.zsh
 # eval "$(starship init zsh)"
 alias nvchad='NVIM_APPNAME=nvchad nvim'
 alias lazy='NVIM_APPNAME=lazynvim nvim'
+export EDITOR=nvim
 
 # bun completions
 [ -s "/Users/Logan.Price/.bun/_bun" ] && source "/Users/Logan.Price/.bun/_bun"
@@ -78,3 +79,6 @@ alias lazy='NVIM_APPNAME=lazynvim nvim'
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# TODO fix this path to make it more robust
+export PATH="/Users/Logan.Price/work/dotfiles/bin:$PATH"

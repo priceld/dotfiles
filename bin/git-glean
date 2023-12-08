@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# git-glean - delete local branches whose remote branch no longer exists.
+# credit to https://gist.github.com/GrayedFox/8250e7a49bfffdb581f6356a43188de2
+
+# When you google for how to remove local branches that no longer exist on the remote,
+# you'll find that most people suggest using `git branch --merged develop` or something.
+# But that doesn't work for ultra because we squash when we merge into develop which
+# apparently means that the branch is not considered "merged" into develop. At least
+# not by `git branch --merged`
+# So this script actually goes through and finds all the local branches whose remote
+# is "gone" and deletes them.
+
+# first we prune origin to ensure our local list of remote branches is up to date
+git remote prune origin
+
+GONE_BRANCHES=$(git branch -vv | grep 'origin/.*: gone]' | awk '{print $1}')
+
+if [ -z "$GONE_BRANCHES" ]; then
+  echo "Could not find any local branches that have a gone remote"
+  exit 0
+fi
+
+if [ "$1" = "-f" ]; then
+  echo "$GONE_BRANCHES" | xargs git branch -D
+else
+  echo "$GONE_BRANCHES" | xargs git branch -d 2>/dev/null
+  if [ $? -ne 0 ]; then
+    FAILED_TO_DELETE="true"
+  fi
+fi
+
+if [ "$FAILED_TO_DELETE" = "true" ]; then
+  echo "error: Some local branches are not fully merged."
+  echo "If you are sure you want to delete them, run 'git-glean -f'"
+fi
