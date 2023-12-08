@@ -68,17 +68,14 @@ bindkey -v
 # Load work stuff
 source ~/bb.zsh
 
-# eval "$(starship init zsh)"
-alias nvchad='NVIM_APPNAME=nvchad nvim'
-alias lazy='NVIM_APPNAME=lazynvim nvim'
 export EDITOR=nvim
 
 # bun completions
-[ -s "/Users/Logan.Price/.bun/_bun" ] && source "/Users/Logan.Price/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
 # TODO fix this path to make it more robust
-export PATH="/Users/Logan.Price/work/dotfiles/bin:$PATH"
+export PATH="$HOME/work/dotfiles/bin:$PATH"
