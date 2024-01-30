@@ -1,0 +1,17 @@
+# From https://github.com/olimorris/dotfiles/blob/main/.config/tmux/conf/skin.conf
+#color_bg="#2e323b"
+color_bg="#282a36"
+color_fg="#282c34"
+#color_fg="#eff0eb"
+color_green="#98c379"
+color_yellow="#e5c07b"
+color_red="#e06c75"
+color_blue="#61afef"
+color_cyan="#56b6c2"
+color_purple="#c678dd"
+color_gray="#5c6370"
+color_buffer="#939aa3"
+color_selection="#3e4452"
+color_light_gray="#5c6370"
+
+#source "/Users/Logan.Price/.config/tmux/skin_shared.conf"

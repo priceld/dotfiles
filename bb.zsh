@@ -56,3 +56,5 @@ watch-pr() {
 alias '??'='gh copilot suggest -t shell'
 alias 'git?'='gh copilot suggest -t git'
 alias 'gh?'='gh copilot suggest -t gh'
+
+alias 'ff'="$HOME/work/dotfiles/toggle-ff.sh"

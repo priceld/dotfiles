@@ -1,19 +1,19 @@
 prSections:
-- title: My Pull Requests
-  filters: is:open author:@me
-- title: Needs My Review
-  filters: is:open review-requested:@me
-- title: Involved
-  filters: is:open involves:@me -author:@me
-- title: My Team's PRs
-  filters: is:open -author:@me label:pd-team-pvc
+  - title: My Pull Requests
+    filters: is:open author:@me
+  - title: Needs My Review
+    filters: is:open review-requested:@me
+  - title: Involved
+    filters: is:open involves:@me -author:@me
+  - title: My Team's PRs
+    filters: is:open -author:@me label:pd-team-pvc
 issuesSections:
-- title: My Issues
-  filters: is:open author:@me
-- title: Assigned
-  filters: is:open assignee:@me
-- title: Involved
-  filters: is:open involves:@me -author:@me
+  - title: My Issues
+    filters: is:open author:@me
+  - title: Assigned
+    filters: is:open assignee:@me
+  - title: Involved
+    filters: is:open involves:@me -author:@me
 defaults:
   preview:
     open: true
@@ -51,7 +51,9 @@ defaults:
 keybindings:
   issues: []
   prs: []
-repoPaths: {}
+repoPaths:
+  # for now, checkout PRs in my review worktree
+  blackboard-learn/ultra: ~/work/ultra-worktree-v4/review
 theme:
   ui:
     table:

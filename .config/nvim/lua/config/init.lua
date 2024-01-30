@@ -1,6 +1,6 @@
-require("config.lazy")
 require("config.options")
 require("config.remap")
+require("config.lazy")
 
 local my_group = vim.api.nvim_create_augroup("LPConfig", {})
 local yank_group = vim.api.nvim_create_augroup("HighlightYank", {})

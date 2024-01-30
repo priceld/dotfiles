@@ -10,20 +10,15 @@ local hyper = { "cmd", "shift", "alt", "ctrl" }
 local apps = {
 	b = "Brave Browser", -- Browser
 	c = { "Code", "Visual Studio Code" },
-	-- d = "Discord",
 	e = "Microsoft Outlook",
 	f = "Finder",
 	g = "Google Chrome",
 	m = "Spotify", -- Music
-	-- n = "Bear", -- Notes
 	o = "Obsidian", -- Life OS
 	-- p = "1Password",
 	-- r = RESERVED
 	s = "Slack",
 	t = "Alacritty", -- Terminal
-	-- v = "VLC", -- Video
-	-- w = "word",
-	-- z = "Todoist",
 }
 
 local LaunchOrFocus = function(key, app_name, app_filename)
@@ -110,3 +105,63 @@ end
 
 hs.hotkey.bind(meh, "1", moveWindowToDisplay(1))
 hs.hotkey.bind(meh, "2", moveWindowToDisplay(2))
+
+-- Toggle my microphone mute for MS Teams.
+-- This is a pretty naive approach. It loops over all the Teams applications
+-- and sends the CMD+Shift+M shortcut to each of them. This shortcut does
+-- nothing in the normal Teams window (the one with chats/channels), but for
+-- a meeting window it toggles the microphone.
+hs.hotkey.bind(hyper, "m", function()
+	local teamsApps = hs.application.applicationsForBundleID("com.microsoft.teams2")
+	for _, v in pairs(teamsApps) do
+		local app = v
+		hs.eventtap.keyStroke({ "cmd", "shift" }, "m", 200, app)
+	end
+end)
+
+-- Shortcut to toggle voice over!
+--
+-- Note that in order for this to work, I had to change the voice over modifier
+-- to be just the caps lock key. Without this, I was able to turn voice over on
+-- but could not turn it off because it thought I was using the voice over
+-- modifier to send shortcuts to voice over. See:
+-- https://support.apple.com/guide/voiceover/voiceover-modifier-unac048/10/mac/14.0
+hs.hotkey.bind(hyper, "v", function()
+	-- There's a setting under Settings > Keyboard > Keyboard Shortcuts > Function Keys
+	-- that controls the default behavior of the function keys. Basically it dictates
+	-- whether you need to hold the "fn" key to send F1, F2, etc.
+	-- This setting seems to default to off, thus the "fn" is required here.
+	hs.eventtap.keyStroke({ "cmd", "fn" }, "f5")
+end)
+
+-- From: https://github.com/mattorb/dotfiles/blob/3fc63f22005bf5298acbcdc8dfa5df89eb824693/hammerspoon/init.lua#L29-L45
+-- Draw on screen. ctrl-alt-cmd+c/a/t.  (c)lear/(a)nnotate/(t)oggle
+local drawonscreen = require("draw-on-screen")
+-- This seems to work by registering a hot key to enter the draw-on-screen "mode"
+-- That hotkey is Hyper+a
+--
+-- Once pressed, several aditional hotkeys are registered:
+--  - Hyper+c (clear the screen)
+--  - Hyper+t (toggle whether dragging the mouse draws on the screen)
+--  - Hyper+a (exit draw-on-screen mode)
+local hotkey = hs.hotkey.modal.new(hyper, "a")
+
+function hotkey:entered()
+	drawonscreen.start()
+	drawonscreen.startAnnotating()
+end
+
+function hotkey:exited()
+	drawonscreen.stopAnnotating()
+	drawonscreen.hide()
+end
+
+hotkey:bind(hyper, "c", function()
+	drawonscreen.clear()
+end)
+hotkey:bind(hyper, "a", function()
+	hotkey:exit()
+end)
+hotkey:bind(hyper, "t", function()
+	drawonscreen.toggleAnnotating()
+end)

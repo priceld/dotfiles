@@ -1,0 +1,8 @@
+// From: https://github.com/extrawurst/gitui/blob/master/THEMES.md
+(
+  command_fg: Some(Reset),
+  selection_bg: Some(LightBlue),
+  selection_fg: Some(Reset),
+  cmdbar_bg: Some(Reset),
+  cmdbar_extra_lines_bg: Some(Reset),
+)

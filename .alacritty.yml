@@ -1,3 +1,4 @@
+# https://github.com/alacritty/alacritty/blob/ea2c39e65d21728e0f04b0eafcec7153e4447cd5/alacritty.yml
 env:
   TERM: xterm-256color
 # This should not be necessary, but for some reason, without this, Alacritty is
@@ -53,9 +54,11 @@ font:
     #  family: JetBrainsMonoNL Nerd Font Mono
     #  family: MesloLGS Nerd Font Mono
 window:
-  dimensions:
-    columns: 100
-    lines: 44
+  decorations: none
+  startup_mode: SimpleFullscreen
+  #dimensions:
+  #  columns: 100
+  #  lines: 44
   # MacOS, register option key as Alt
   option_as_alt: Both
 hints:

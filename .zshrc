@@ -79,3 +79,26 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # TODO fix this path to make it more robust
 export PATH="$HOME/work/dotfiles/bin:$PATH"
+
+# Set the theme to use for bat
+export BAT_THEME="1337"
+# This is making fzf break in nvim and not show any preview at all. Not sure why.
+#export FZF_PREVIEW_COMMAND="bat"
+#
+
+# I don't like having this...I really only need it for Aladdin tests.
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# From Jason's config
+if (( $+commands[eza] )) {
+  # change file owner to yellow instead of bold yellow
+  export EZA_COLORS="uu=33"
+  # format times like file modified time as ISO instead of dynamic which is too variable
+  # list [a]ll files in a [l]ong listing with column [h]eaders and include git status info if any
+  alias la='eza -ahl --git --group-directories-first'
+  alias ll='eza -hl --git --group-directories-first --no-user'
+}
+
+eval "$(zoxide init zsh)"

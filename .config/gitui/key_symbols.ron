@@ -1,0 +1,8 @@
+// From: https://github.com/extrawurst/gitui/blob/master/KEY_CONFIG.md
+(
+    enter: Some("<cr>"),
+    shift: Some(""),
+    esc: Some("<esc>"),
+    alt: Some("alt-"),
+    backspace: Some("<bs>"),
+)

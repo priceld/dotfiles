@@ -33,9 +33,14 @@ vim.keymap.set("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move up" })
 vim.keymap.set("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Move down" })
 vim.keymap.set("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move up" })
 
+-- Easier jumplist nav
+vim.keymap.set("n", "<bs>", "<C-o>", { desc = "Go back in jumplist" })
+-- This is a default mapping in vim already. I'm adding it here to get the whichkey description
+vim.keymap.set("n", "<tab>", "<C-i>", { desc = "Go forward in jumplist" })
+
 -- Easier buffer nav
-vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+vim.keymap.set("n", "<A-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
+vim.keymap.set("n", "<A-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
 
 -- leader o - new file adjacent to current (jonhoo)
 vim.keymap.set(
@@ -44,8 +49,9 @@ vim.keymap.set(
 	':e <C-R>=expand("%:p:h") . "/" <cr>',
 	{ desc = "Open new file adjacent to current file" }
 )
+
+-- NOTE you can change FZF's preview command with FZF_PREVIEW_COMMAND
 vim.cmd([[
-noremap <leader>s :Rg
 let g:fzf_layout = { 'down': '~20%' }
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
@@ -62,7 +68,11 @@ endfunction
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, {'source': s:list_cmd(),
   \                               'options': '--tiebreak=index'}, <bang>0)
+
 ]])
 
 vim.keymap.set("n", "<leader>/", ":Rg ", { desc = "Ripgrep" })
-vim.keymap.set("n", "<leader>p", ":Files<cr>", { desc = "Project files" })
+vim.keymap.set("n", "<leader>f", ":Files<cr>", { desc = "Project files" })
+vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
+
+vim.keymap.set("n", "<leader>mr", ":CellularAutomaton make_it_rain<cr>", { desc = "Make it rain" })
