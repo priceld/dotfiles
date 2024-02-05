@@ -54,8 +54,6 @@ font:
     #  family: JetBrainsMonoNL Nerd Font Mono
     #  family: MesloLGS Nerd Font Mono
 window:
-  decorations: none
-  startup_mode: SimpleFullscreen
   #dimensions:
   #  columns: 100
   #  lines: 44
