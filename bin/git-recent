@@ -4,7 +4,7 @@
 # credit to https://github.com/nicknisi/dotfiles/blob/852317a908f1f511df6f8d0fd28ca79b7f37fe01/bin/git-recent
 # (who also credits: https://gist.github.com/srsholmes/5607e26c187922878943c50edfb245ef)
 
-branches=$(git branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]')
+branches=$(git -c color.ui=always branch --sort=-committerdate --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - (%(color:green)%(committerdate:relative)%(color:reset)) [%(color:white dim)%(authorname)%(color:reset)] %(contents:subject)')
 branch=$(echo "$branches" | fzf --ansi)
 if [[ -z "$branch" ]]; then
   exit
