@@ -6,7 +6,8 @@ vim.g.mapleader = " "
 vim.keymap.set("n", ";", ":", { desc = "Command mode" })
 
 -- Easy ESC
-vim.keymap.set("i", "jk", "<esc>")
+vim.keymap.set("i", "jk", "<esc><right>")
+vim.keymap.set("i", "jj", "<esc><right>")
 
 -- keep search results centered
 vim.keymap.set("n", "n", "nzz", { silent = true })
@@ -14,6 +15,8 @@ vim.keymap.set("n", "N", "Nzz", { silent = true })
 vim.keymap.set("n", "*", "*zz", { silent = true })
 vim.keymap.set("n", "#", "#zz", { silent = true })
 vim.keymap.set("n", "g*", "g*zz", { silent = true })
+vim.keymap.set("n", "G", "Gzz", { silent = true })
+vim.keymap.set("n", "%", "%zz", { silent = true })
 
 -- Easier window navigation (<C-j> to <C-w>j, etc)
 vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
@@ -41,6 +44,19 @@ vim.keymap.set("n", "<tab>", "<C-i>", { desc = "Go forward in jumplist" })
 -- Easier buffer nav
 vim.keymap.set("n", "<A-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
 vim.keymap.set("n", "<A-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+
+-- Easier quicklist nav
+-- From: https://github.com/dmmulroy/kickstart.nix/blob/ee5dc1ae5e479bff40e31d595e5b67466f3cf333/config/nvim/lua/user/keymaps.lua
+-- Place all dignostics into a qflist
+vim.keymap.set("n", "<leader>ld", vim.diagnostic.setqflist, { desc = "Quickfix [L]ist [D]iagnostics" })
+-- Navigate to next qflist item
+vim.keymap.set("n", "<leader>cn", ":cnext<cr>zz", { desc = "Quickfix [N]ext" })
+-- Navigate to previos qflist item
+vim.keymap.set("n", "<leader>cp", ":cprevious<cr>zz", { desc = "Quickfix [P]revious" })
+-- Open the qflist
+vim.keymap.set("n", "<leader>co", ":copen<cr>zz", { desc = "Quickfix [O]pen" })
+-- Close the qflist
+vim.keymap.set("n", "<leader>cc", ":cclose<cr>zz", { desc = "Quickfix [C]lose" })
 
 -- leader o - new file adjacent to current (jonhoo)
 vim.keymap.set(
@@ -75,4 +91,6 @@ vim.keymap.set("n", "<leader>/", ":Rg ", { desc = "Ripgrep" })
 vim.keymap.set("n", "<leader>f", ":Files<cr>", { desc = "Project files" })
 vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
 
-vim.keymap.set("n", "<leader>mr", ":CellularAutomaton make_it_rain<cr>", { desc = "Make it rain" })
+vim.keymap.set("n", "<leader>iq", ":CellularAutomaton make_it_rain<cr>", { desc = "Make it rain ([I] [q]uit)" })
+
+vim.keymap.set("n", "<leader>rv", "<cmd>source $MYVIMRC<cr>", { desc = "[R]eload Neo[v]im" })

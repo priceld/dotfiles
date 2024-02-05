@@ -79,5 +79,11 @@ return {
 				},
 			},
 		})
+
+		require("lspconfig").eslint.setup({
+			settings = {
+				format = false,
+			},
+		})
 	end,
 }

@@ -11,6 +11,7 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
 vim.opt.smartindent = true
+vim.opt.breakindent = true
 
 vim.opt.wrap = false
 
@@ -43,4 +44,3 @@ vim.opt.virtualedit = "block"
 
 vim.opt.colorcolumn = "120"
 vim.opt.signcolumn = "yes"
-

@@ -16,7 +16,8 @@ return {
 				["html"] = { "prettier" },
 				["json"] = { "prettier" },
 				["jsonc"] = { "prettier" },
-				["yaml"] = { "prettier" },
+				-- Disable formatting for YAML files since it messes up our locale file conventions
+				--["yaml"] = { "prettier" },
 				["markdown"] = { "prettier" },
 				["markdown.mdx"] = { "prettier" },
 			},

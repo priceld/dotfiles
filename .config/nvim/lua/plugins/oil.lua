@@ -1,3 +1,11 @@
+-- Do not show column line for oil buffers
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "oil",
+	callback = function()
+		vim.opt_local.colorcolumn = ""
+	end,
+})
+
 return {
 	"stevearc/oil.nvim",
 	config = function()
@@ -12,6 +20,8 @@ return {
 			keymaps = {
 				["?"] = "actions.show_help",
 				["<CR>"] = "actions.select",
+				-- TODO: hmm...what I really want is for esc to only close if it is the floating window
+				["<esc>"] = "actions.close",
 				-- ["<C-\\>"] = "actions.select_vsplit",
 				-- ["<C-enter>"] = "actions.select_split", -- this is used to navigate left
 				["<C-t>"] = "actions.select_tab",
