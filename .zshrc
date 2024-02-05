@@ -1,7 +1,8 @@
 # https://github.com/dreamsofcode-io/dotfiles/blob/main/.zshrc
 
 # Uncomment to add profiling to zsh startup
-# zmodload zsh/zprof
+# You can then run zprof to see the most time consuming parts of startup
+#zmodload zsh/zprof
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -24,15 +25,15 @@ source "${ZINIT_HOME}/zinit.zsh"
 # Option to enable lazy-loading for the oh-my-zsh nvm plugin
 # https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/nvm
 # Must be done before oh-my-zsh is sourced.
-zinit ice atload"zstyle ':omz:plugins:nvm' lazy yes; zstyle ':omz:plugins:nvm' lazy-cmd npx"
+#zinit ice atload"zstyle ':omz:plugins:nvm' lazy yes; zstyle ':omz:plugins:nvm' lazy-cmd npx"
 zinit light ohmyzsh/ohmyzsh
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit snippet OMZP::git
 # # I'm attempting to use fnm, so I may be able to get rid of nvm...
 # # zinit snippet OMZP::nvm
-zinit snippet OMZP::aws
-zinit snippet OMZP::kubectl
-zinit snippet OMZP::kubectx
+#zinit snippet OMZP::aws
+#zinit snippet OMZP::kubectl
+#zinit snippet OMZP::kubectx
 
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-syntax-highlighting
@@ -44,8 +45,17 @@ export LANG=en_US.UTF-8
 
 setopt auto_cd
 
-# Completions
-source <(kubectl completion zsh)
+if (( $+commands[kubectl] )) {
+  # Placeholder for lazy loading. Will only be called once.
+  kubectl() {
+    unfunction "$0"
+    # Completions
+    source <(kubectl completion zsh)
+
+    # Invoke kubectl
+    $0 "$@"
+  }
+}
 
 # P10k customizations
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -70,12 +80,20 @@ source ~/bb.zsh
 
 export EDITOR=nvim
 
-# bun completions
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+if (( $+commands[bun] )) {
+  # Lazy loading, will only be called once
+  bun() {
+    unfunction "$0"
+    # bun completions
+    [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+    $0 "$@"
+  }
+}
 
 # TODO fix this path to make it more robust
 export PATH="$HOME/work/dotfiles/bin:$PATH"
@@ -89,7 +107,15 @@ export BAT_THEME="1337"
 # I don't like having this...I really only need it for Aladdin tests.
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+[ $+commands[pyenv] ] || export PATH="$PYENV_ROOT/bin:$PATH"
+if (( $+commands[pyenv] )) {
+  pyenv() {
+    unfunction "$0"
+    eval "$(pyenv init -)"
+
+    $0 "$@"
+  }
+}
 
 # From Jason's config
 if (( $+commands[eza] )) {
@@ -101,4 +127,5 @@ if (( $+commands[eza] )) {
   alias ll='eza -hl --git --group-directories-first --no-user'
 }
 
+# I wasn't able to lazy load this easily for some reason
 eval "$(zoxide init zsh)"

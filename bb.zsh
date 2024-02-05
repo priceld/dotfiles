@@ -27,7 +27,12 @@ ultra-on() {
 }
 
 # Setup asdf (for kubectl)
-source /opt/homebrew/opt/asdf/libexec/asdf.sh
+asdf() {
+  unfunction asdf
+  source /opt/homebrew/opt/asdf/libexec/asdf.sh
+
+  $0 "$@"
+}
 export KUBECONFIG=~/.kube/config
 
 
@@ -37,7 +42,7 @@ function calogin() {
 }
 
 # Load worktree helpers
-source $HOME/work/dotfiles/worktrees.sh
+#source $HOME/work/dotfiles/worktrees.sh
 
 # Watch a PR to see when its checks finish
 # TODO: make this a gh extension
@@ -58,3 +63,5 @@ alias 'git?'='gh copilot suggest -t git'
 alias 'gh?'='gh copilot suggest -t gh'
 
 alias 'ff'="$HOME/work/dotfiles/toggle-ff.sh"
+alias 'yb'='yarn build'
+alias 'ys'='yarn start'
