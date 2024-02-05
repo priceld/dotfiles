@@ -118,6 +118,14 @@ hs.hotkey.bind(hyper, "m", function()
 		hs.eventtap.keyStroke({ "cmd", "shift" }, "m", 200, app)
 	end
 end)
+-- Leave an MS Teams call/meeting
+hs.hotkey.bind(hyper, "l", function()
+	local teamsApps = hs.application.applicationsForBundleID("com.microsoft.teams2")
+	for _, v in pairs(teamsApps) do
+		local app = v
+		hs.eventtap.keyStroke({ "cmd", "shift" }, "h", 200, app)
+	end
+end)
 
 -- Shortcut to toggle voice over!
 --
