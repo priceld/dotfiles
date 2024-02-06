@@ -93,4 +93,5 @@ vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
 
 vim.keymap.set("n", "<leader>iq", ":CellularAutomaton make_it_rain<cr>", { desc = "Make it rain ([I] [q]uit)" })
 
+-- TODO: this doesn't seem to be working
 vim.keymap.set("n", "<leader>rv", "<cmd>source $MYVIMRC<cr>", { desc = "[R]eload Neo[v]im" })

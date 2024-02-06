@@ -1,6 +1,7 @@
 require("config.options")
 require("config.remap")
 require("config.lazy")
+require("config.vertical-splits")
 
 local my_group = vim.api.nvim_create_augroup("LPConfig", {})
 local yank_group = vim.api.nvim_create_augroup("HighlightYank", {})
