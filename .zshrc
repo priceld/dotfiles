@@ -22,18 +22,9 @@ fi
 
 source "${ZINIT_HOME}/zinit.zsh"
 
-# Option to enable lazy-loading for the oh-my-zsh nvm plugin
-# https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/nvm
-# Must be done before oh-my-zsh is sourced.
-#zinit ice atload"zstyle ':omz:plugins:nvm' lazy yes; zstyle ':omz:plugins:nvm' lazy-cmd npx"
 zinit light ohmyzsh/ohmyzsh
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit snippet OMZP::git
-# # I'm attempting to use fnm, so I may be able to get rid of nvm...
-# # zinit snippet OMZP::nvm
-#zinit snippet OMZP::aws
-#zinit snippet OMZP::kubectl
-#zinit snippet OMZP::kubectx
 
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-syntax-highlighting
@@ -75,11 +66,14 @@ eval "$(fnm env --use-on-cd)"
 # Enable VI-mode
 bindkey -v
 
+# From: https://sgeb.io/posts/bash-zsh-half-typed-commands/
+bindkey '^q' push-line-or-edit
+
+export WORK_HOME="$HOME/work"
 # Load work stuff
-source ~/bb.zsh
+[ -f "$WORK_HOME/learn.util/users/logan.price/bb.zsh" ] && source "$WORK_HOME/learn.util/users/logan.price/bb.zsh"
 
 export EDITOR=nvim
-
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -96,7 +90,7 @@ if (( $+commands[bun] )) {
 }
 
 # TODO fix this path to make it more robust
-export PATH="$HOME/work/dotfiles/bin:$PATH"
+export PATH="$WORK_HOME/dotfiles/bin:$PATH"
 
 # Set the theme to use for bat
 export BAT_THEME="1337"

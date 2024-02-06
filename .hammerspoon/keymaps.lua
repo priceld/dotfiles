@@ -34,6 +34,8 @@ local LaunchOrFocus = function(key, app_name, app_filename)
 		if awin and app and app:isFrontmost() then
 			-- LP: I don't think I want this toggle functionality
 			-- app:hide()
+			-- LP: I wonder if instead of hiding, we should cycle
+			-- through windows.
 		else
 			-- Launch
 			if app_filename then
