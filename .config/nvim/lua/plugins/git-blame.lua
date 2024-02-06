@@ -1,8 +1,9 @@
 return {
 	"f-person/git-blame.nvim",
+	event = "VeryLazy",
 	config = function()
 		require("gitblame").setup({
-			-- TODO: maybe ignore "oil" filetypes
+			ignored_filetypes = { "oil" },
 			enabled = true,
 		})
 	end,
