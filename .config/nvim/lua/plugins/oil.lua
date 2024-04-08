@@ -32,6 +32,10 @@ return {
 				["g."] = "actions.toggle_hidden",
 			},
 			use_default_keymaps = false,
+			win_options = {
+				signcolumn = "yes",
+			},
+			skip_confirm_for_simple_edits = true,
 		})
 
 		vim.keymap.set("n", "<leader>e", "<cmd>Oil<cr>", { desc = "File explorer" })

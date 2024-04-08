@@ -58,7 +58,14 @@ vim.keymap.set("n", "<leader>co", ":copen<cr>zz", { desc = "Quickfix [O]pen" })
 -- Close the qflist
 vim.keymap.set("n", "<leader>cc", ":cclose<cr>zz", { desc = "Quickfix [C]lose" })
 
+-- Diagnostics
+vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
+vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
+vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+
 -- leader o - new file adjacent to current (jonhoo)
+-- See :h c_^r for more info (look at the expression register)
 vim.keymap.set(
 	"n",
 	"<leader>o",
@@ -95,3 +102,5 @@ vim.keymap.set("n", "<leader>iq", ":CellularAutomaton make_it_rain<cr>", { desc 
 
 -- TODO: this doesn't seem to be working
 vim.keymap.set("n", "<leader>rv", "<cmd>source $MYVIMRC<cr>", { desc = "[R]eload Neo[v]im" })
+
+vim.keymap.set("n", "<leader>gg", "<cmd>Git<cr>", { desc = "Open Git Fugitive" })

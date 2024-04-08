@@ -61,6 +61,17 @@ return {
 						node_decremental = "<leader>sd",
 					},
 				},
+
+				-- TODO: I wonder if I should use mini.ai for this instead
+				-- textobjects = {
+				-- 	select = {
+				-- 		enable = true,
+				-- 		lookahed = true,
+				-- 		keymaps = {
+				-- 			["ap"] = "@parameter.outer",
+				-- 		},
+				-- 	},
+				-- },
 			})
 		end,
 	},

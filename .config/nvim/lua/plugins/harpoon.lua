@@ -13,15 +13,15 @@ return {
 		-- TODO: what keymaps to use
 		vim.keymap.set("n", "<A-a>", function()
 			harpoon:list():append()
-		end)
+		end, { desc = "[A]dd file to harpoon list" })
 		vim.keymap.set("n", "<A-i>", function()
 			harpoon:list():next()
-		end)
+		end, { desc = "Next file in harpoon list" })
 		vim.keymap.set("n", "<A-u>", function()
 			harpoon:list():prev()
-		end)
+		end, { desc = "Prev file in harpoon list" })
 		vim.keymap.set("n", "<A-o>", function()
 			harpoon.ui:toggle_quick_menu(harpoon:list())
-		end)
+		end, { desc = "[O]pen harpoon list" })
 	end,
 }

@@ -15,7 +15,13 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("FileType", {
 	group = vim.api.nvim_create_augroup("fugitive-keybinds", { clear = true }),
 	pattern = "fugitive",
-	callback = function()
-		vim.keymap.set("n", "<leader>o", "<cmd>let f=expand('<cfile>')<cr><c-w>w :execute('e '.f)<cr>")
+	callback = function(o)
+		-- Add a buffer local keymap for opening files
+		vim.keymap.set(
+			"n",
+			"<leader>o",
+			"<cmd>let f=expand('<cfile>')<cr><c-w>w :execute('e '.f)<cr>",
+			{ desc = "[O]pen file", buffer = o.buf }
+		)
 	end,
 })
