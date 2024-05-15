@@ -1,0 +1,67 @@
+import = ["/Users/Logan.Price/.config/alacritty/catppuccin/catppuccin-mocha.toml"]
+
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[colors.bright]
+black = "#777788"
+magenta = "#ed91d5"
+red = "#ff8480"
+
+[colors.normal]
+black = "#373948"
+magenta = "#ed91d5"
+red = "#ff8480"
+
+[colors.primary]
+background = "#282a36"
+foreground = "#eff0eb"
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 18.0
+
+[font.bold]
+family = "UbuntuMono Nerd Font Mono"
+style = "Bold"
+
+[font.bold_italic]
+family = "UbuntuMono Nerd Font Mono"
+style = "Bold Italic"
+
+[font.italic]
+family = "UbuntuMono Nerd Font Mono"
+style = "Italic"
+
+[font.normal]
+family = "UbuntuMono Nerd Font Mono"
+
+[[hints.enabled]]
+command = "open"
+hyperlinks = true
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini:|gopher:|https:|http:|news:|file:|git:|ssh:|ftp:)[^\u0000-\u001F\u007F-<>\"\\s{-}\\^⟨⟩`]+"
+
+[hints.enabled.binding]
+key = "U"
+mods = "Control|Shift"
+
+[[hints.enabled]]
+action = "Copy"
+regex = '(feature/|bugfix/|origin/)[^\s,\)]+'
+
+[hints.enabled.binding]
+key = "B"
+mods = "Control|Shift"
+
+[shell]
+args = ["--login"]
+program = "/bin/zsh"
+
+[window]
+option_as_alt = "Both"
+
+[window.padding]
+x = 5
+y = 5
