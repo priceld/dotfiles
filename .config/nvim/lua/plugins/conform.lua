@@ -22,6 +22,7 @@ return {
 				["markdown"] = { "prettier" },
 				["markdown.mdx"] = { "prettier" },
 			},
+			-- I disabled this while working on Ally
 			format_on_save = {
 				timeout_ms = 5000,
 				lsp_fallback = true,

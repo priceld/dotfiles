@@ -12,7 +12,7 @@ return {
 
 		-- TODO: what keymaps to use
 		vim.keymap.set("n", "<A-a>", function()
-			harpoon:list():append()
+			harpoon:list():add()
 		end, { desc = "[A]dd file to harpoon list" })
 		vim.keymap.set("n", "<A-i>", function()
 			harpoon:list():next()

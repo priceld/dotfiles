@@ -50,15 +50,26 @@ colors:
 font:
   size: 18.0
   normal:
+    # family: Cascadia Mono NF
     family: UbuntuMono Nerd Font Mono
-    #  family: JetBrainsMonoNL Nerd Font Mono
-    #  family: MesloLGS Nerd Font Mono
+    # family: JetBrainsMonoNL Nerd Font Mono
+   # family: MesloLGS Nerd Font Mono
+  bold:
+    family: UbuntuMono Nerd Font Mono
+    style: Bold
+  italic:
+    family: UbuntuMono Nerd Font Mono
+    style: Italic
+  bold_italic:
+    family: UbuntuMono Nerd Font Mono
+    style: Bold Italic
 window:
-  #dimensions:
-  #  columns: 100
-  #  lines: 44
   # MacOS, register option key as Alt
   option_as_alt: Both
+  # Trying out some padding to see if I like it.
+  padding:
+    x: 5
+    y: 5
 hints:
   enabled:
     - regex:

@@ -44,3 +44,7 @@ vim.opt.virtualedit = "block"
 
 vim.opt.colorcolumn = "120"
 vim.opt.signcolumn = "yes"
+
+-- Spell check please
+vim.opt.spelllang = "en_us"
+vim.opt.spell = true

@@ -14,6 +14,7 @@ local apps = {
 	f = "Finder",
 	g = "Google Chrome",
 	m = "Spotify", -- Music
+	n = "com.microsoft.teams2", -- Teams ([N]ooooooooooo)
 	o = "Obsidian", -- Life OS
 	-- p = "1Password",
 	-- r = RESERVED

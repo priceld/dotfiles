@@ -1,11 +1,17 @@
 return {
 	{
-		"rebelot/kanagawa.nvim",
+		-- "rebelot/kanagawa.nvim",
+		-- "Biscuit-Theme/nvim",
+		"catppuccin/nvim",
+		name = "catppuccin",
+		priority = 1000,
 		-- "sainnhe/everforest",
 		-- "nyoom-engineering/oxocarbon.nvim",
 		-- "Mofiqul/adwaita.nvim",
 		config = function()
-			vim.cmd.colorscheme("kanagawa-wave")
+			-- vim.cmd.colorscheme("kanagawa-wave")
+			-- vim.cmd.colorscheme("biscuit")
+			vim.cmd.colorscheme("catppuccin-mocha")
 		end,
 	},
 	-- from https://github.com/jonhoo/configs/blob/master/editor/.config/nvim/init.lua

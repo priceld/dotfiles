@@ -12,4 +12,22 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup("plugins")
+require("lazy").setup("plugins", {
+	-- based this off of: https://github.com/MuhametSmaili/nvim/blob/main/lua/smaili/lazy-nvim.lua
+	defaults = {
+		-- Changing this to true really breaks stuff...not sure why, but should probably look into it.
+		lazy = false,
+	},
+	performance = {
+		rtp = {
+			disabled_plugins = {
+				"netrwPlugin",
+				"gzip",
+				"tarPlugin",
+				"tohtml",
+				"tutor",
+				"zipPlugin",
+			},
+		},
+	},
+})
