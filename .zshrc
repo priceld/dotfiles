@@ -2,7 +2,7 @@
 
 # Uncomment to add profiling to zsh startup
 # You can then run zprof to see the most time consuming parts of startup
-#zmodload zsh/zprof
+# zmodload zsh/zprof
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -123,3 +123,9 @@ if (( $+commands[eza] )) {
 
 # I wasn't able to lazy load this easily for some reason
 eval "$(zoxide init zsh)"
+
+# Strips all the ANSI color codes from the input
+# Based on: https://stackoverflow.com/questions/17998978/removing-colors-from-output
+alias stripcolors='sed -E "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"'
+# Have difft show a "unified" diff. The goal is to get this to work in vim-fugitive
+alias inlinedifft='difft --display inline'
