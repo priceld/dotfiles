@@ -1,0 +1,18 @@
+# TODO: use relative path?
+import = ["/Users/Logan.Price/.config/alacritty/catppuccin/catppuccin-mocha.toml"]
+
+# Some of my own overrides that I thought looked better than default catppuccin
+[colors.bright]
+black = "#777788"
+magenta = "#ed91d5"
+red = "#ff8480"
+
+[colors.normal]
+black = "#373948"
+magenta = "#ed91d5"
+red = "#ff8480"
+
+[colors.primary]
+background = "#282a36"
+foreground = "#eff0eb"
+
