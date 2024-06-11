@@ -13,6 +13,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins", {
+	change_detection = {
+		notify = false,
+	},
 	-- based this off of: https://github.com/MuhametSmaili/nvim/blob/main/lua/smaili/lazy-nvim.lua
 	defaults = {
 		-- Changing this to true really breaks stuff...not sure why, but should probably look into it.

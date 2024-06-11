@@ -1,5 +1,6 @@
 return {
 	"VonHeikemen/lsp-zero.nvim",
+	event = "VeryLazy",
 	branch = "v3.x",
 	dependencies = {
 		"williamboman/mason.nvim",

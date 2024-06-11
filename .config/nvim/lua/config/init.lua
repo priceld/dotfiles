@@ -2,6 +2,7 @@ require("config.options")
 require("config.remap")
 require("config.lazy")
 require("config.vertical-splits")
+require("config.terminal")
 require("config.build")
 
 local my_group = vim.api.nvim_create_augroup("LPConfig", {})

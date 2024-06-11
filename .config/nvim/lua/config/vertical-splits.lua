@@ -7,6 +7,16 @@ vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "help", "fugitive" },
 	callback = function()
 		vim.bo.bufhidden = "unload"
+		-- TODO: it is too late to do this at this point...the new window has already been created
+		-- local win_count = vim.fn.winnr("$")
+		-- if win_count > 1 then
+		-- 	-- Move the cursor to the rightmost window
+		-- 	while vim.fn.winnr("l") ~= vim.fn.winnr() do
+		-- 		vim.cmd("wincmd l")
+		-- 	end
+		-- 	vim.cmd.wincmd("=")
+		-- 	return
+		-- end
 		vim.cmd.wincmd("L")
 		vim.cmd.wincmd("=")
 	end,

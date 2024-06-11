@@ -58,9 +58,16 @@ vim.keymap.set("n", "<leader>co", ":copen<cr>zz", { desc = "Quickfix [O]pen" })
 -- Close the qflist
 vim.keymap.set("n", "<leader>cc", ":cclose<cr>zz", { desc = "Quickfix [C]lose" })
 
+-- These mappings control the size of splits (width)
+-- I took these from TJ DeVries' config, but the are weird.
+-- In the left split, they work as I would expect, but in the right split they work the opposite of what I would expect.
+vim.keymap.set("n", "<M-,>", "<c-w>5<")
+vim.keymap.set("n", "<M-.>", "<c-w>5>")
+
 -- Diagnostics
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
+-- TODO: fix this keymap as it conflicts with oil
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
@@ -78,7 +85,7 @@ vim.cmd([[
 let g:fzf_layout = { 'down': '~20%' }
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
+  \   'rg --column --line-number --no-heading --color=always --hidden '.shellescape(<q-args>), 1,
   \   <bang>0 ? fzf#vim#with_preview('up:60%')
   \           : fzf#vim#with_preview('right:50%:hidden', '?'),
   \   <bang>0)
@@ -94,7 +101,12 @@ command! -bang -nargs=? -complete=dir Files
 
 ]])
 
+-- TODO: I would really like a keymap for visual mode that takes the selected text and searches for it with Rg.
 vim.keymap.set("n", "<leader>/", ":Rg ", { desc = "Ripgrep" })
+vim.keymap.set("v", "<leader>/", function()
+	local selected_text = "Not Yet Implemented"
+	vim.cmd("Rg " .. selected_text)
+end, { desc = "Ripgrep" })
 vim.keymap.set("n", "<leader>f", ":Files<cr>", { desc = "Project files" })
 vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
 
@@ -104,3 +116,5 @@ vim.keymap.set("n", "<leader>iq", ":CellularAutomaton make_it_rain<cr>", { desc 
 vim.keymap.set("n", "<leader>rv", "<cmd>source $MYVIMRC<cr>", { desc = "[R]eload Neo[v]im" })
 
 vim.keymap.set("n", "<leader>gg", "<cmd>Git<cr>", { desc = "Open Git Fugitive" })
+
+vim.keymap.set("n", "<ESC>", "<cmd>nohlsearch<cr>", { desc = "Clear search highlights" })
