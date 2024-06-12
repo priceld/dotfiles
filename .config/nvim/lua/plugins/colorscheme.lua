@@ -8,6 +8,7 @@ return {
 		-- "sainnhe/everforest",
 		-- "nyoom-engineering/oxocarbon.nvim",
 		-- "Mofiqul/adwaita.nvim",
+		-- TODO: maybe give base16-classic-dark a try
 		config = function()
 			-- vim.cmd.colorscheme("kanagawa-wave")
 			-- vim.cmd.colorscheme("biscuit")
