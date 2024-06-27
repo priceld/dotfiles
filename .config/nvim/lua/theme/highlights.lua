@@ -151,6 +151,12 @@ function M.init()
 			-- sym"@preproc"           { }, -- PreProc
 			-- sym"@debug"             { }, -- Debug
 			-- sym"@tag"               { }, -- Tag
+			--
+
+			-- LP - Prior to this change the entire subject line for git commits was
+			-- using keyword highlighting. This makes it so that just the
+			-- conventional commit type is highlighted.
+			sym("@markup.heading.gitcommit")({ Normal }),
 
 			-- The following are the Neovim (as of 0.8.0-dev+100-g371dfb174) highlight
 			-- groups, mostly used for styling UI elements.
@@ -221,7 +227,7 @@ function M.init()
 			PmenuSbar({ bg = Pmenu.bg.lighten(5) }), -- Popup menu: Scrollbar.d
 			PmenuThumb({ bg = Pmenu.bg.lighten(15) }), -- Popup menu: Thumb of the scrollbar.
 			-- Question     { }, -- |hit-enter| prompt and yes/no questions
-			-- QuickFixLine { }, -- Current |quickfix| item in the quickfix window. Combined with |hl-CursorLine| when the cursor is there.
+			QuickFixLine({ bg = Normal.bg.lighten(6) }), -- Current |quickfix| item in the quickfix window. Combined with |hl-CursorLine| when the cursor is there.
 			Search({ fg = color.bg, bg = color.cyan }), -- Last search pattern highlighting (see 'hlsearch'). Also used for similar items that need to stand out.
 			SpecialKey({ fg = color.faded_text }), -- Unprintable characters: text displayed differently from what it really is. But not 'listchars' whitespace. |hl-Whitespace|
 			-- SpellBad     { }, -- Word that is not recognized by the spellchecker. |spell| Combined with the highlighting used otherwise.

@@ -1,20 +1,20 @@
 return {
-	{
-		-- "rebelot/kanagawa.nvim",
-		-- "Biscuit-Theme/nvim",
-		"catppuccin/nvim",
-		name = "catppuccin",
-		priority = 1000,
-		-- "sainnhe/everforest",
-		-- "nyoom-engineering/oxocarbon.nvim",
-		-- "Mofiqul/adwaita.nvim",
-		-- TODO: maybe give base16-classic-dark a try
-		config = function()
-			-- vim.cmd.colorscheme("kanagawa-wave")
-			-- vim.cmd.colorscheme("biscuit")
-			vim.cmd.colorscheme("catppuccin-mocha")
-		end,
-	},
+	-- {
+	-- 	-- "rebelot/kanagawa.nvim",
+	-- 	-- "Biscuit-Theme/nvim",
+	-- 	"catppuccin/nvim",
+	-- 	name = "catppuccin",
+	-- 	priority = 1000,
+	-- 	-- "sainnhe/everforest",
+	-- 	-- "nyoom-engineering/oxocarbon.nvim",
+	-- 	-- "Mofiqul/adwaita.nvim",
+	-- 	-- TODO: maybe give base16-classic-dark a try
+	-- 	config = function()
+	-- 		-- vim.cmd.colorscheme("kanagawa-wave")
+	-- 		-- vim.cmd.colorscheme("biscuit")
+	-- 		vim.cmd.colorscheme("catppuccin-mocha")
+	-- 	end,
+	-- },
 	-- from https://github.com/jonhoo/configs/blob/master/editor/.config/nvim/init.lua
 	-- {
 	-- 	"wincent/base16-nvim",
