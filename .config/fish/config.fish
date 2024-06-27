@@ -23,3 +23,6 @@ function push-line
 end
 
 # bind \cu push-line
+
+# Not really sure why I need to do this myself as this should be the default
+set -U fish_color_param normal
