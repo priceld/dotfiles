@@ -7,9 +7,6 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
 
 autoload -Uz compinit && compinit
 
@@ -23,7 +20,6 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 zinit light ohmyzsh/ohmyzsh
-zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit snippet OMZP::git
 
 zinit light zsh-users/zsh-completions
@@ -50,7 +46,6 @@ if (( $+commands[kubectl] )) {
 
 # P10k customizations
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 # from: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
 timezsh() {
@@ -129,3 +124,4 @@ eval "$(zoxide init zsh)"
 alias stripcolors='sed -E "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"'
 # Have difft show a "unified" diff. The goal is to get this to work in vim-fugitive
 alias inlinedifft='difft --display inline'
+
