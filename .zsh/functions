@@ -1,0 +1,34 @@
+# Based on: https://github.com/wincent/wincent/blob/main/aspects/dotfiles/files/.zsh/functions#L100-L107
+function scratch() {
+  local SCRATCH=$(mktemp -d)
+  echo 'Spawing subshell in scratch directory:'
+  echo "  $SCRATCH"
+  (cd $SCRATCH; zsh)
+  echo "Removing scratch directory"
+  rm -rf "$SCRATCH"
+}
+
+# This is a function to change directories quickly by utilizing fd and fzf. It
+# operates under the assumption that it is being used from within a git
+# repository.
+function zd() {
+  local fzf_options=()
+  if [ ! -z "$1" ]; then
+    # If an arg was provided, use that as the starting query for fzf
+    fzf_options+=(--query "$1")
+  fi
+
+  # Find git root and use that as the root to search from.
+  local root=$(git rev-parse --show-toplevel)
+
+  # Search for directories under the repo root and sort them by their proximity to
+  # our current location.
+  # TODO: potentially set a depth limit to the search. Or another thought, if we
+  # are already at a certain depth, we could just search from x levels up.
+  # TODO: when I did some benchmarking, it seems that find is faster than fd!
+  local new_dir=$(fd --type dir --exclude __tests__ . "$root" | proximity-sort $(pwd) | fzf "${fzf_options[@]}")
+
+  if [ ! -z "$new_dir" ]; then
+    cd "$new_dir"
+  fi
+}

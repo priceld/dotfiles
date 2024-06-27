@@ -1,0 +1,18 @@
+# Based on https://github.com/wincent/wincent/blob/main/aspects/dotfiles/files/.zsh/aliases
+# alias :e=vim
+# alias :qa=exit
+# alias :sp='test -n "$TMUX" && tmux split-window'
+# alias :vs='test -n "$TMUX" && tmux split-window -h'
+# alias :wq=exit
+# alias b=brew
+# alias g=git
+# alias o='git oneline'
+# alias p='git patch'
+# alias t=tmux
+# alias v=vim
+#
+# if command -v nvim &> /dev/null; then
+#   alias vim=nvim # Use `\vim` or `command vim` to get the real vim.
+# fi
+
+alias word='shuf -n1 /usr/share/dict/words'

@@ -125,3 +125,7 @@ alias stripcolors='sed -E "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"'
 # Have difft show a "unified" diff. The goal is to get this to work in vim-fugitive
 alias inlinedifft='difft --display inline'
 
+source $HOME/.zsh/aliases
+source $HOME/.zsh/functions
+
+source $HOME/.zsh/wincent-prompt
