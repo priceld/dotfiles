@@ -418,6 +418,6 @@ end
 return {
 	"nvim-lualine/lualine.nvim",
 	event = "VimEnter",
-	dependencies = { "nvim-tree/nvim-web-devicons" },
+	-- dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = M.setup,
 }
