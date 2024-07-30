@@ -6,11 +6,7 @@
 #
 # NOTES:
 # I really really like this prompt. It's simple, but it's got a lot of info.
-# The problem is that it doesn't work well in narrow windows since everything
-# is on the same line. So I probably won't use this in the long run. Or I may
-# Modify it go get back closer to what I had before since one benefit of this
-# script is that the prompt is pretty fast.
-
+# I would like to find a way to indicate when VI mode has been enabled.
 
 # # Create a hash table for globally stashing variables without polluting main
 # scope with a bunch of identifiers.
@@ -55,9 +51,13 @@ function -update-ps1() {
   # $(!.%F{yellow}.%F{red})$(printf ...) = show one ❯ per $LVL (red for root, otherwise yellow)
   if [ -n "$GIT_COMMITTER_DATE" -a -n "$GIT_AUTHOR_DATE" -a -n "$TW" ]; then
     # Show last `tw` or `tick` step.
-    export PS1="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}%b%F{blue}%B%1~%b%F{yellow}%B(${TW})%(1j.*.)%(?..!)%b%f %B%(!.%F{yellow}%n%f.)%(!.%F{yellow}.%F{red})$(printf '\u276f%.0s' {1..$LVL})%f%b "
+    export PROMPT="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}%b%F{blue}\n%F{yellow}%B(${TW})%(1j.*.)%(?..!)%b%f %B%(!.%F{yellow}%n%f.)%(!.%F{yellow}.%F{red})$(printf '\u276f%.0s' {1..$LVL})%f%b "
   else
-    export PS1="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}%b%F{blue}%B%1~%b%F{yellow}%B%(1j.*.)%(?..!)%b%f %B%(!.%F{yellow}%n%f.)%(!.%F{yellow}.%F{red})$(printf '\u276f%.0s' {1..$LVL})%f%b "
+    # I don't really understand this, but somehow using the "$" prefix along with single quotes
+    # allows us to use \n and actually get a newline
+    export PROMPT_BASE_1="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}%b%F{blue}"
+    export PROMPT_BASE_2="%F{yellow}%B%(1j.*.)%(?..!)%b%f %B%(!.%F{yellow}%n%f.)%(!.%F{yellow}.%F{red})$(printf '\u276f%.0s' {1..$LVL})%f%b "
+    export PROMPT=$PROMPT_BASE_1$'\n'$PROMPT_BASE_2
   fi
   if [[ -n "$TMUXING" ]]; then
     # Outside tmux, ZLE_RPROMPT_INDENT ends up eating the space after PS1, and
@@ -79,8 +79,24 @@ if [ -f "$HOME/.zsh/zsh-async/async.zsh" ]; then
     zstyle ':vcs_info:*' unstagedstr "%F{red}•%f" # default 'U'
     zstyle ':vcs_info:*' use-simple true
     zstyle ':vcs_info:git+set-message:*' hooks git-untracked
-    zstyle ':vcs_info:git*:*' formats '[%b%m%c%u] ' # default ' (%s)-[%b]%c%u-'
-    zstyle ':vcs_info:git*:*' actionformats '[%b|%F{red}%a%f %m%c%u] ' # default ' (%s)-[%b|%a]%c%u-'
+    # %b = branch info
+    # %c = staged file info
+    # %u = unstaged file info
+    # %m = misc info (I use this for ahead/behind arrows)
+    zstyle ':vcs_info:git*:*' formats '%F{#585B70}%b%f%c%u %m' # default ' (%s)-[%b]%c%u-'
+    zstyle ':vcs_info:git*:*' actionformats '%F{#585B70}%b%f|%F{red}%a%f %m%c%u ' # default ' (%s)-[%b|%a]%c%u-'
+
+    # Add up/down arrows after branch name, if there are changes to pull/to push
+    zstyle ':vcs_info:git+post-backend:*' hooks git-post-backend-updown
+    function +vi-git-post-backend-updown() {
+      git rev-parse @{upstream} >/dev/null 2>&1 || return
+      local -a x; x=( $(git rev-list --left-right --count HEAD...@{upstream} ) )
+      hook_com[misc]+="%F{cyan}" # end coloring
+      (( x[2] )) && hook_com[misc]+="↓"
+      (( x[1] )) && hook_com[misc]+="↑"
+      hook_com[misc]+="%f" # end coloring
+      return 0
+    }
 
     function +vi-git-untracked() {
       emulate -L zsh
@@ -143,10 +159,10 @@ if [ -f "$HOME/.zsh/zsh-async/async.zsh" ]; then
   add-zsh-hook precmd -trigger-vcs-info-run-in-worker
   add-zsh-hook chpwd -clear-vcs-info-on-chpwd
 
-  RPROMPT_BASE="\${vcs_info_msg_0_}%F{blue}%~%f"
+  PROMPT_BASE_DIR_AND_VSC="%F{blue}%~%f \${vcs_info_msg_0_}"
   setopt PROMPT_SUBST
 else
-  RPROMPT_BASE="%F{blue}%~%f"
+  PROMPT_BASE_DIR_AND_VSC="%F{blue}%~%f"
 fi
 
 function -update-rprompt() {
@@ -169,10 +185,12 @@ function -update-rprompt() {
       SECS="$((~~$SECS))s"
     fi
     ELAPSED="${ELAPSED}${SECS}"
-    export RPROMPT="%F{cyan}%{$__WINCENT[ITALIC_ON]%}${ELAPSED}%{$__WINCENT[ITALIC_OFF]%}%f $RPROMPT_BASE"
+    export PROMPT="$PROMPT_BASE_1 $PROMPT_BASE_DIR_AND_VSC"$'\n'"$PROMPT_BASE_2"
+    export RPROMPT="%F{cyan}%{$__WINCENT[ITALIC_ON]%}${ELAPSED}%{$__WINCENT[ITALIC_OFF]%}%f"
     unset ZSH_START_TIME
   else
-    export RPROMPT="$RPROMPT_BASE"
+    export PROMPT="$PROMPT_BASE_1 $PROMPT_BASE_DIR_AND_VSC"$'\n'"$PROMPT_BASE_2"
+    export RPROMPT=""
   fi
 }
 add-zsh-hook precmd -update-rprompt
