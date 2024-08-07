@@ -16,7 +16,12 @@ vim.opt.breakindent = true
 vim.opt.wrap = false
 
 -- Yank, delete, change should copy to system clipboard.
-vim.opt.clipboard = "unnamedplus"
+-- Apparently, this can increase startup time. So schedule it to be set after
+-- the `UiEnter` event.
+-- https://github.com/nvim-lua/kickstart.nvim/blob/master/init.lua#L114
+vim.schedule(function()
+	vim.opt.clipboard = "unnamedplus"
+end)
 
 -- TODO: figure out what I want here. Not sure about swap/backup,
 -- but I think I want undodir...but it should probably take the NVIM_APPNAME

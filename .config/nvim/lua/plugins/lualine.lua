@@ -42,22 +42,22 @@ function M.setup()
 		},
 	}
 
-	local project_section = {
-		function()
-			local fs = require("editor.fs")
-			return fs.root({ capitalize = true })
-		end,
-		color = { fg = color.inverted_text, bg = palette.cyan, gui = "bold" },
-	}
-
-	local tabs_section = {
-		"tabs",
-		mode = 1,
-		tabs_color = {
-			active = { fg = color.active_text, bg = color.emphasized_bg },
-			inactive = { fg = color.incative_text, bg = color.bg },
-		},
-	}
+	-- local project_section = {
+	-- 	function()
+	-- 		local fs = require("editor.fs")
+	-- 		return fs.root({ capitalize = true })
+	-- 	end,
+	-- 	color = { fg = color.inverted_text, bg = palette.cyan, gui = "bold" },
+	-- }
+	--
+	-- local tabs_section = {
+	-- 	"tabs",
+	-- 	mode = 1,
+	-- 	tabs_color = {
+	-- 		active = { fg = color.active_text, bg = color.emphasized_bg },
+	-- 		inactive = { fg = color.incative_text, bg = color.bg },
+	-- 	},
+	-- }
 
 	local mode_section = {
 		function()
@@ -155,7 +155,7 @@ function M.setup()
 		color = { fg = color.active_text, bg = color.emphasized_bg },
 	}
 
-	local location_seciton = {
+	local location_section = {
 		"location",
 		padding = { left = 0, right = 1 },
 		color = { fg = color.active_text, bg = color.emphasized_bg },
@@ -194,7 +194,7 @@ function M.setup()
 				progress_section,
 			},
 			lualine_z = {
-				location_seciton,
+				location_section,
 			},
 		},
 		-- tabline = {
@@ -209,7 +209,7 @@ function M.setup()
 		-- },
 	})
 
-	m.ensure_tabline_visibility_mode()
+	-- m.ensure_tabline_visibility_mode()
 end
 
 -- function M.keymaps()
@@ -253,7 +253,7 @@ function m.toggle_filename()
 	end
 
 	plugin.setup(config)
-	m.ensure_tabline_visibility_mode()
+	-- m.ensure_tabline_visibility_mode()
 end
 
 function m.ensure_tabline_visibility_mode()
@@ -417,7 +417,8 @@ end
 
 return {
 	"nvim-lualine/lualine.nvim",
-	event = "VimEnter",
+	-- event = "VimEnter",
+	event = "VeryLazy",
 	-- dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = M.setup,
 }
