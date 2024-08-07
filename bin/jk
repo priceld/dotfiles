@@ -1,0 +1,142 @@
+#!/usr/bin/env zsh
+
+# NOTE: there is probably a better URL to use.
+JENKINS_URL="https://jenkins-kubernetes.dev.bbpd.io/api/json?tree=views\[name,jobs\[name,jobs\[name,jobs\[name,displayName,fullDisplayName,url,color\]\]\]\]"
+CACHE_FILE="/tmp/jenkins-jobs-cache.json"
+FORCE_UPDATE=false
+OPEN_IN_BROWSER=false
+
+# Current time in seconds
+CURRENT_TIME=$(date +%s)
+
+# Cache validity duration (30 minutes)
+CACHE_VALIDITY=$((30 * 60))
+
+# Ensure jq and fzf are installed
+if ! command -v jq &> /dev/null || ! command -v fzf &> /dev/null; then
+  echo "This script requires 'jq' and 'fzf' to be installed."
+  exit 1
+fi
+
+GIT_DIR=""
+# Process arguments
+# TODO: write better help
+for arg in "$@"
+do
+  if [[ "$arg" == "--web" ]]; then
+    # TODO: I think opening in the browser should be the default behavior
+    OPEN_IN_BROWSER=true
+  elif [[ "$arg" == "--force" ]]; then
+    FORCE_UPDATE=true
+  else
+    GIT_DIR="$arg"
+  fi
+done
+
+if [[ ! -z "$GIT_DIR" && ! -e "$GIT_DIR/.git" ]]; then
+  echo "Not a valid git directory: '$GIT_DIR'"
+  exit 1
+fi
+
+# Function to fetch data from Jenkins
+fetch_jenkins_data() {
+  if [[ ! -f "$HOME/.jkconfig" ]]; then
+    echo "No Jenkins API token found. Please create a file at '$HOME/.jkconfig' with the following content:"
+    echo "  user = <user>:<api-token>"
+    exit 1
+  fi
+  local result=$(curl -s -o "$CACHE_FILE" -w "%{http_code}" "$JENKINS_URL" --config "$HOME/.jkconfig")
+  if [ "$result" -ne 200 ]; then
+    echo "Failed to fetch Jenkins data. Did you provide a valid Jenkins API token?"
+    rm "$CACHE_FILE"
+    exit 1
+  fi
+}
+
+# Check cache validity
+if [ -f "$CACHE_FILE" ]; then
+  # NOTE: if the jenkins api ever started returning a last modified header or
+  # etag, we could just use `If-Modified-Since` or `If-None-Match` headers to
+  # avoid downloading the data if it hasn't changed.
+  CACHE_TIME=$(date -r "$CACHE_FILE" +%s)
+  TIME_DIFF=$((CURRENT_TIME - CACHE_TIME))
+
+  if [ "$TIME_DIFF" -gt "$CACHE_VALIDITY" ] || [ "$FORCE_UPDATE" = true ]; then
+    fetch_jenkins_data
+  fi
+else
+  fetch_jenkins_data
+fi
+
+# Finds the Jenkins job for the git branch currently checked out in the given
+# directory
+function find_job_for_git_branch() {
+  pushd "$GIT_DIR" > /dev/null
+  local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  popd > /dev/null
+  SELECTED_URL=$(jq -r ".views[] | .. | objects | select(.displayName // \"\" | test(\"^$branch_name\$\")) | \"\(.url)\"" "$CACHE_FILE")
+}
+
+# Prompts the user to search (using fzf) for a Jenkins job
+function search_jobs() {
+  filter_views='.views[]? | select(.name | test("sandbox|xythos|consulting|partner cloud"; "i") | not) | .. | objects'
+  select_jobs='select(._class | test("WorkflowJob$"))'
+  # To get jq to play nice with ansi codes, we need to use '\u001b' instead of the octal '\033'
+  RED='\u001b[0;31m'
+  GREEN='\u001b[0;32m'
+  YELLOW='\u001b[0;33m'
+  RESET='\u001b[0m'
+    # These are all the "unique" values for the .color property (as of the time of
+    # this writing, it is possible there are more):
+    #   - aborted
+    #   - aborted_anime
+    #   - blue
+    #   - blue_anime
+    #   - disabled
+    #   - notbuilt
+    #   - notbuilt_anime
+    #   - red
+    #   - red_anime
+    #   - yellow
+    #   - yellow_anime
+  build_indicator="if .color == null then
+    \" \"
+  elif .color | test(\"^aborted\") then
+    \"$RED-$RESET\"
+  elif .color | test(\"^blue\") then
+    \"$GREEN✔$RESET\"
+  elif .color | test(\"^red\") then
+    \"$RED✗$RESET\"
+  elif .color | test(\"^yellow\") then
+    \"$YELLOW●$RESET\"
+  else
+    \"?\"
+  end"
+  name='if .fullDisplayName == null then
+    .name
+  else
+    .fullDisplayName
+  end'
+  format_fzf_input="\($build_indicator) \($name)\t\(.url)"
+  JOB_SELECTION=$(jq -r "$filter_views | $select_jobs | \"$format_fzf_input\"" "$CACHE_FILE" | fzf --ansi --delimiter "\t" --with-nth=1..1)
+  # Exit if no job is selected
+  if [ -z "$JOB_SELECTION" ]; then
+      echo "No job selected."
+      exit 0
+  fi
+  # Extract the URL from the selection
+  SELECTED_URL=$(echo "$JOB_SELECTION" | cut -f2)
+}
+
+if [ ! -z "$GIT_DIR" ]; then
+  find_job_for_git_branch
+else
+  search_jobs
+fi
+
+# Open the URL in the browser or print it
+if $OPEN_IN_BROWSER; then
+  open "$SELECTED_URL"
+else
+  echo "$SELECTED_URL"
+fi

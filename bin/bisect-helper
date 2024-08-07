@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# NOTE: I have not tested this script thoroughly, but the idea is to use it with
+# git bisect run. The script you give `bisect run` needs to conform to the exit
+# codes that `bisect` expects (i.e. 0 for good, >0 but not 125 for bad).
+#
+# TODO: this isn't working...the output of commands are not being captured
+
+set -o pipefail
+
+# Display help documentation
+show_help() {
+  echo "Usage:"
+  echo "  $(basename $0) [FILE]"
+  echo "  $(basename $0) -- COMMAND..."
+  echo
+  echo "This is a utility to help when performing a bisect with git. \`git bisect run\`"
+  echo "can be used to automate the process of finding a commit that introduced a bug."
+  echo "When using \`git bisect run\`, git will use the exit code of the script to"
+  echo "determine whether to mark the commit as good or bad. However, most scripts are"
+  echo "not written with this in mind."
+  echo
+  echo "This utility allows you to run an arbitrary script or command and then decide"
+  echo "whether to mark the commit as good or bad."
+  echo
+  echo "Examples:"
+  echo "  $(basename $0) ./path/to/script.sh    Execute the given script"
+  echo "  $(basename $0) -- cd .. && ls         Execute the given commands"
+  echo
+}
+
+# Function to execute commands
+execute_commands() {
+  "$@"
+  if [ $? -ne 0 ]; then
+    echo "The command failed to run, but we're not exiting."
+  fi
+}
+
+# Function to execute a script file
+execute_script() {
+  bash "$1"
+  if [ $? -ne 0 ]; then
+    echo "The script failed to run, but we're not exiting."
+  fi
+}
+
+# Check for help option
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  show_help
+  exit 0
+fi
+
+# Check if the first argument is '--', indicating command execution
+if [ "$1" == "--" ]; then
+  # Remove the first argument ('--')
+  shift
+  # Execute the remaining arguments as commands
+  execute_commands "$@"
+else
+  # Assume the argument is a script file and try to execute it
+  execute_script "$1"
+fi
+
+# Wait for user input before deciding to exit
+echo "Mark the commit as good or bad? (g/b)"
+read user_input
+
+if [ "$user_input" == "g" ]; then
+  exit 0
+else
+  exit 1
+fi

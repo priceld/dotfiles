@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Based on https://github.com/Wilfred/difftastic/issues/716
+#
+# TODO: also checkout:
+# https://gist.github.com/junegunn/f4fca918e937e6bf5bad?permalink_comment_id=4075799#gistcomment-4075799
+# For an interesting variation on this script.
+LOG_FMT="%C(auto)%h%Creset %s%C(auto)%d%Creset %C(magenta bold)(%cr)%Creset %C(cyan)<%aN>%Creset"
+git \
+  -c color.ui=always \
+  log \
+  --oneline \
+  --pretty=format:"$LOG_FMT" | fzf \
+    --ansi \
+    --preview \
+    "GIT_EXTERNAL_DIFF='difft --color=always' git show --color=always {1} --ext-diff " \
+    --preview-window="up,75%" \
+    --bind 'enter:become(echo {1}),alt-shift-up:preview-page-up,alt-shift-down:preview-page-down' \
+    --header 'Shift-Up/Down: Preview up/down | Alt-Shift-Up/Down: Preview page up/down'
