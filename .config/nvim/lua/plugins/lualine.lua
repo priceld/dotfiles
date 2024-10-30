@@ -93,6 +93,9 @@ function M.setup()
 		fmt = function(v, _ctx)
 			if m.should_ignore_filetype() then
 				return nil
+			elseif vim.bo.filetype == "oil" then
+				-- For OIL buffers, show the file path
+				return require("oil").get_current_dir(vim.api.nvim_get_current_buf())
 			else
 				return v
 			end
@@ -163,7 +166,7 @@ function M.setup()
 
 	plugin.setup({
 		options = {
-			icons_enabled = true,
+			-- icons_enabled = true,
 			theme = theme,
 			component_separators = "",
 			section_separators = {
@@ -183,6 +186,7 @@ function M.setup()
 			lualine_b = {
 				filename_section,
 				branch_section,
+				"diff",
 				diagnostics_section,
 			},
 			lualine_c = {},
@@ -417,8 +421,11 @@ end
 
 return {
 	"nvim-lualine/lualine.nvim",
-	-- event = "VimEnter",
-	event = "VeryLazy",
+	event = "VimEnter",
+	-- event = "VeryLazy",
 	-- dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = M.setup,
+	-- opts = {
+	-- 	theme = "gruvbox",
+	-- },
 }

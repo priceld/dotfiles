@@ -67,7 +67,6 @@ vim.keymap.set("n", "<M-.>", "<c-w>5>")
 -- Diagnostics
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
--- TODO: fix this keymap as it conflicts with oil
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
@@ -118,3 +117,6 @@ vim.keymap.set("n", "<leader>rv", "<cmd>source $MYVIMRC<cr>", { desc = "[R]eload
 vim.keymap.set("n", "<leader>gg", "<cmd>Git<cr>", { desc = "Open Git Fugitive" })
 
 vim.keymap.set("n", "<ESC>", "<cmd>nohlsearch<cr>", { desc = "Clear search highlights" })
+
+vim.keymap.set("n", "<leader>p", "<cmd>put", { desc = "Paste on the next line" })
+vim.keymap.set("n", "<leader>P", "<cmd>put!", { desc = "Paste on the previous line" })

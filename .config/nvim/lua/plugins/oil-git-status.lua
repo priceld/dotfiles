@@ -4,4 +4,5 @@ return {
 		"stevearc/oil.nvim",
 	},
 	config = true,
+	enable = false,
 }

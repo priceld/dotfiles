@@ -16,7 +16,7 @@ return {
 					},
 				},
 				{
-					-- NOTE: this is a bit of a hack since this is not a true regex. I
+					-- NOTE: this is a bit of a hack since "pattern" is not a true regex. I
 					-- wanted to use negative lookahead to exclude files under the
 					-- __tests__ directory, but instead, I'm just excluding files that
 					-- are under a directory that starts with an underscore.

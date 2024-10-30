@@ -9,6 +9,7 @@ vim.api.nvim_create_autocmd("FileType", {
 return {
 	"stevearc/oil.nvim",
 	event = "VeryLazy",
+	enable = false,
 	config = function()
 		require("oil").setup({
 			delete_to_trash = true,

@@ -346,6 +346,10 @@ function M.init()
 			SpectreBody({ fg = color.charcoal, bold = true }),
 			SpectreSearch({ fg = color.bg, bg = color.green }),
 			SpectreReplace({ fg = color.bg, bg = color.orange }),
+
+			LuaLineDiffAdd({ fg = color.green }),
+			LuaLineDiffDelete({ fg = color.red }),
+			LuaLineDiffChange({ fg = color.blue }),
 		}
 	end)
 

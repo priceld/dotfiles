@@ -64,15 +64,33 @@ return {
 			ensure_installed = { "prettier" },
 		})
 		require("mason-lspconfig").setup({
-			ensure_installed = { "tsserver", "rust_analyzer", "html", "lua_ls", "jsonls" },
+			ensure_installed = { "ts_ls", "rust_analyzer", "html", "lua_ls", "jsonls" },
 			handlers = {
 				lsp_zero.default_setup,
+			},
+		})
+
+		require("lspconfig").jsonls.setup({
+			settings = {
+				json = {
+					schemas = {
+						{
+							fileMatch = { "package.json" },
+							url = "https://json.schemastore.org/package.json",
+						},
+					},
+				},
 			},
 		})
 
 		require("lspconfig").lua_ls.setup({
 			settings = {
 				Lua = {
+					diagnostics = {
+						globals = {
+							"vim",
+						},
+					},
 					-- The following is from: https://github.com/nvim-lua/kickstart.nvim/blob/master/init.lua#L554-L565
 					runtime = { version = "LuaJIT" },
 					workspace = {
@@ -82,6 +100,8 @@ return {
 						library = {
 							"${3rd}/luv/library",
 							unpack(vim.api.nvim_get_runtime_file("", true)),
+							"/Applications/Hammerspoon.app/Contents/Resources/extensions/hs",
+							"/Users/Logan.Price/.hammerspoon/Spoons/EmmyLua.spoon/annotations",
 						},
 						-- If lua_ls is really slow on your computer, you can try this instead:
 						-- library = { vim.env.VIMRUNTIME },

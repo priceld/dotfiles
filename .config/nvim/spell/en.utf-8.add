@@ -20,3 +20,6 @@ RTL
 freemium
 boolean
 memoized
+unmounting
+submenu
+metadata
