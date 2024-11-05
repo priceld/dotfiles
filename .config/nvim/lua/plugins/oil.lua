@@ -8,7 +8,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 return {
 	"stevearc/oil.nvim",
-	event = "VeryLazy",
+	cmd = "Oil",
 	enable = false,
 	config = function()
 		require("oil").setup({
@@ -43,8 +43,5 @@ return {
 		})
 
 		vim.keymap.set("n", "<leader>e", "<cmd>Oil<cr>", { desc = "File explorer" })
-		vim.keymap.set("n", "-", function()
-			require("oil").toggle_float()
-		end, { desc = "Toggle oil float" })
 	end,
 }

@@ -1,7 +1,10 @@
 -- https://github.com/rgroli/other.nvim
 return {
 	"rgroli/other.nvim",
-	event = "VeryLazy",
+	cmd = {
+		"Other",
+		"OtherVSplit",
+	},
 	config = function()
 		require("other-nvim").setup({
 			mappings = {
