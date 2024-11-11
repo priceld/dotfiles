@@ -22,8 +22,10 @@ fi
 source "${ZINIT_HOME}/zinit.zsh"
 
 zinit light ohmyzsh/ohmyzsh
-zinit snippet OMZP::git
+# zinit snippet OMZP::git
 
+# Replace default zsh completion menu with fzf
+zinit light Aloxaf/fzf-tab
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-syntax-highlighting
 
@@ -118,14 +120,39 @@ if (( $+commands[eza] )) {
   alias ll='eza -hl --git --group-directories-first --no-user'
 }
 
+# TODO: test this to see if it is something worth keeping
+eval "$(atuin init --disable-up-arrow zsh)"
+
 # I wasn't able to lazy load this easily for some reason
 eval "$(zoxide init zsh)"
+function zd() {
+  # This is a special case for zoxide to work better in worktrees. The idea is
+  # that zoxide will help find the appropriate relative directory and
+  # proximity-sort will ensure that it is within the current worktree.
+  \builtin cd -- "$(zoxide query --list $@ | proximity-sort $(pwd) | head -n 1)"
+}
 
 # Strips all the ANSI color codes from the input
 # Based on: https://stackoverflow.com/questions/17998978/removing-colors-from-output
 alias stripcolors='sed -E "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g"'
 # Have difft show a "unified" diff. The goal is to get this to work in vim-fugitive
 alias inlinedifft='difft --display inline'
+
+# ZSH history
+# Where to store the history file (by default it is not written to a file)
+export HISTFILE="$HOME/.zsh_history"
+# The maximum number of events stored in the internal history list.
+export HISTSIZE=100000
+# The maximum number of history events to save in the history file.
+export SAVEHIST=100000
+
+setopt HIST_IGNORE_DUPS # Don't record duplicates in the history
+setopt HIST_IGNORE_SPACE # Don't record commands starting with a space
+setopt SHARE_HISTORY # Share history between all sessions
+
+export GOPATH="$HOME/go"
+export GOBIN="$GOPATH/bin"
+export PATH="$GOBIN:$PATH"
 
 source $HOME/.zsh/aliases
 source $HOME/.zsh/functions
