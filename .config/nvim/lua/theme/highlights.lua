@@ -312,11 +312,6 @@ function M.init()
 
 			TabsVsSpaces({ fg = color.faded_text, underline = true }),
 
-			-- LP I don't use pounce
-			-- PounceMatch({ fg = Normal.bg, bg = color.cyan }),
-			-- PounceGap({ fg = Normal.bg.lighten(50), bg = Normal.bg.lighten(10) }),
-			-- PounceAccept({ fg = Normal.bg, bg = color.purple, bold = true }),
-			-- PounceAcceptBest({ fg = Normal.bg, bg = color.green, bold = true }),
 			MiniCursorword({ bg = Normal.bg.lighten(10) }),
 
 			NvimSurroundHighlight({ fg = Normal.bg, bg = color.cyan }),
@@ -327,17 +322,6 @@ function M.init()
 			TelescopeResultsDiffChange({ fg = color.blue }),
 
 			SagaNormal({ bg = color.bg }),
-
-			-- LP: I don't use neotree
-			-- NeoTreeRootName({ fg = color.strong_text, bold = true }),
-			-- NeoTreeDirectoryIcon({ fg = color.faded_text }),
-			-- NeoTreeFileIcon({ fg = color.faded_text }),
-			-- NeoTreeIndentMarker({ IndentBlanklineChar }),
-			-- NeoTreeGitAdded({ fg = color.green }),
-			-- NeoTreeGitUntracked({ fg = color.green }),
-			-- NeoTreeGitModified({ fg = color.blue }),
-			-- NeoTreeGitStaged({ fg = color.green }),
-			-- NeoTreeGitIgnored({ fg = color.faded_text }),
 
 			SpectreHeader({ Comment }),
 			SpectreBorder({ Comment }),

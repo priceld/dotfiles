@@ -8,20 +8,32 @@ local hyper = { "cmd", "shift", "alt", "ctrl" }
   this, a table can be passed which contains the app name followed by the filename
 ]]
 local apps = {
-	b = "Brave Browser", -- Browser
+	b = "com.brave.Browser", -- Browser
+	-- TODO: com.brave.Browser.beta -- Brave Beta
 	c = { "Code", "Visual Studio Code" },
 	e = "Microsoft Outlook",
 	f = "Finder",
-	g = "Google Chrome",
-	m = "Spotify", -- Music
+	-- g = "Google Chrome",
+	m = "Spotify", -- [M]usic
 	n = "com.microsoft.teams2", -- Teams ([N]ooooooooooo)
-	o = "Obsidian", -- Life OS
-	-- p = "1Password",
+	o = "Obsidian", --
+	p = "1Password",
 	-- r = RESERVED
 	s = "Slack",
-	t = "Alacritty", -- Terminal
+	t = "Alacritty", -- [T]erminal
+	u = "com.brave.Browser.beta", -- Brave Beta (for testing [U]ltra)
+	-- TODO:
+	-- ? = "special search mode" -- brings up a prompt to search active apps? the log the name to the console
 }
 
+--[[
+--TODO: I would really like to improve my window management workflow. One thing
+--that I think may be useful would be to have a shortcut for bringing an app up
+--on the main screen, but allow the user to pick which app using the mappings
+--above.
+--So the flow would be like: type <shorcut> + <app>
+--This would allow for a lot of flexibility without needing a million shortcuts
+  ]]
 local LaunchOrFocus = function(key, app_name, app_filename)
 	hs.hotkey.bind(meh, key, function()
 		local app = hs.application.find(app_name)
@@ -33,10 +45,15 @@ local LaunchOrFocus = function(key, app_name, app_filename)
 		end
 		-- Toggle - hide
 		if awin and app and app:isFrontmost() then
-			-- LP: I don't think I want this toggle functionality
-			-- app:hide()
 			-- LP: I wonder if instead of hiding, we should cycle
 			-- through windows.
+			local allWindows = app:allWindows()
+			-- for a, b in pairs(allWindows) do
+			-- 	if b ~= awin then
+			-- 		hs.window.raise(b)
+			-- 		hs.window.focus(b)
+			-- 	end
+			-- end
 		else
 			-- Launch
 			if app_filename then
@@ -57,6 +74,7 @@ end
 -- to it. I often want this when I need to look at another window for reference.
 -- At a brief look at the documentation, it isn't immediately obvious how to
 -- accomplish this.
+-- hs.window.raise() brings a window to the front but doesn't focus it.
 -- TODO: this is not working
 local BringToFront = function(key, app_name, app_filename)
 	hs.hotkey.bind(hyper, key, function()
@@ -116,16 +134,14 @@ hs.hotkey.bind(meh, "2", moveWindowToDisplay(2))
 -- a meeting window it toggles the microphone.
 hs.hotkey.bind(hyper, "m", function()
 	local teamsApps = hs.application.applicationsForBundleID("com.microsoft.teams2")
-	for _, v in pairs(teamsApps) do
-		local app = v
+	for _, app in pairs(teamsApps) do
 		hs.eventtap.keyStroke({ "cmd", "shift" }, "m", 200, app)
 	end
 end)
 -- Leave an MS Teams call/meeting
 hs.hotkey.bind(hyper, "l", function()
 	local teamsApps = hs.application.applicationsForBundleID("com.microsoft.teams2")
-	for _, v in pairs(teamsApps) do
-		local app = v
+	for _, app in pairs(teamsApps) do
 		hs.eventtap.keyStroke({ "cmd", "shift" }, "h", 200, app)
 	end
 end)

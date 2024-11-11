@@ -421,8 +421,7 @@ end
 
 return {
 	"nvim-lualine/lualine.nvim",
-	event = "VimEnter",
-	-- event = "VeryLazy",
+	lazy = false,
 	-- dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = M.setup,
 	-- opts = {

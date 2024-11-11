@@ -1,3 +1,4 @@
 .fdignore
 # Ignore local nvim configs
 .nvim.lua
+.git
