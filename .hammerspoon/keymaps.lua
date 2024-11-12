@@ -35,26 +35,33 @@ local apps = {
 --This would allow for a lot of flexibility without needing a million shortcuts
   ]]
 local LaunchOrFocus = function(key, app_name, app_filename)
+	local nextWindow = 1
 	hs.hotkey.bind(meh, key, function()
 		local app = hs.application.find(app_name)
-		print(app)
 		-- Toggle - show
 		local awin = nil
 		if app then
 			awin = app:mainWindow()
 		end
-		-- Toggle - hide
 		if awin and app and app:isFrontmost() then
-			-- LP: I wonder if instead of hiding, we should cycle
-			-- through windows.
+			-- If the app is already the formost application, then subsequent presses
+			-- of the hotkey should cycle through the windows.
+			-- NOTE: the result of `allWindows` changes based on what window is
+			-- in front. So the act of raising a window, will change the result of
+			-- the next call to `allWindows`. For this reason, we cannot simply
+			-- increment `nextWindow` to get the next window. We can do that until we
+			-- reach the end of the list, at which point the list will be the reverse
+			-- of when we started and the next window to open will always be the last
+			-- window in the list.
 			local allWindows = app:allWindows()
-			-- for a, b in pairs(allWindows) do
-			-- 	if b ~= awin then
-			-- 		hs.window.raise(b)
-			-- 		hs.window.focus(b)
-			-- 	end
-			-- end
+			nextWindow = math.min(nextWindow + 1, #allWindows)
+			awin = allWindows[nextWindow]
+			if awin then
+				awin:focus()
+			end
 		else
+			-- Reset next window when bringing an app to the forefront
+			nextWindow = 1
 			-- Launch
 			if app_filename then
 				return hs.application.launchOrFocus(app_filename)
@@ -75,8 +82,7 @@ end
 -- At a brief look at the documentation, it isn't immediately obvious how to
 -- accomplish this.
 -- hs.window.raise() brings a window to the front but doesn't focus it.
--- TODO: this is not working
-local BringToFront = function(key, app_name, app_filename)
+local BringToFrontWithoutFocus = function(key, app_name, app_filename)
 	hs.hotkey.bind(hyper, key, function()
 		local app = hs.application.find(app_name)
 		print(app)
@@ -87,20 +93,14 @@ local BringToFront = function(key, app_name, app_filename)
 		end
 		-- Toggle - hide
 		if awin and app and app:isFrontmost() then
-			-- LP: I don't think I want this toggle functionality
-			-- app:hide()
+		-- Do nothing, this kinda defeats the purpose of this function
 		else
-			-- Launch
-			-- TODO LP
-			-- if app_filename then
-			-- 	return hs.application.launchOrFocus(app_filename)
-			-- end
+			if not awin then
+				return
+			end
 
-			app = hs.application.find(app_name)
-			app.unhide()
-			-- hs.application.launchOrFocus(app_name)
-			-- app.setFrontmost(app)
-			-- app.activate(app)
+			awin:raise()
+			-- TODO: cycle through windows
 		end
 	end)
 end
@@ -108,10 +108,10 @@ end
 for key, app_name in pairs(apps) do
 	if type(app_name) == "table" then
 		LaunchOrFocus(key, app_name[1], app_name[2])
-		BringToFront(key, app_name[1], app_name[2])
+		BringToFrontWithoutFocus(key, app_name[1], app_name[2])
 	else
 		LaunchOrFocus(key, app_name)
-		BringToFront(key, app_name)
+		BringToFrontWithoutFocus(key, app_name)
 	end
 end
 
