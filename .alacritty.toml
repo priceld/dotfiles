@@ -1,5 +1,5 @@
 import = [
-  "~/.config/alacritty/catppuccin-custom.toml",
+  # "~/.config/alacritty/catppuccin-custom.toml",
   "~/.config/alacritty/theme.toml",
 ]
 
@@ -20,6 +20,9 @@ size = 16.0
 #   'Hack Nerd Font Mono'
 #   'League Mono Narrow'
 #   Menlo
+#
+# Fonts to try:
+#   Iosevka
 #
 # Note:
 #   As of 11/11/2024, the 0xProto font from nerd fonts was using a fairly
