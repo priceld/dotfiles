@@ -11,7 +11,7 @@ function scratch() {
 # This is a function to change directories quickly by utilizing fd and fzf. It
 # operates under the assumption that it is being used from within a git
 # repository.
-function zd() {
+function zd_old() {
   local fzf_options=()
   if [ ! -z "$1" ]; then
     # If an arg was provided, use that as the starting query for fzf

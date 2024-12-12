@@ -3,4 +3,4 @@
   # Difftastic aliases, so `git dlog` is `git log` with difftastic and so on.
   dlog = -c diff.external=difft log --ext-diff
   dshow = -c diff.external=difft show --ext-diff
-  ddiff = -c diff.external=difft diff
+  difft = -c diff.external=difft diff

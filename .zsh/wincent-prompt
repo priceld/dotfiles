@@ -8,7 +8,7 @@
 # I really really like this prompt. It's simple, but it's got a lot of info.
 # I would like to find a way to indicate when VI mode has been enabled.
 
-# # Create a hash table for globally stashing variables without polluting main
+# Create a hash table for globally stashing variables without polluting main
 # scope with a bunch of identifiers.
 typeset -A __WINCENT
 

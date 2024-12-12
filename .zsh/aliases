@@ -16,3 +16,8 @@
 # fi
 
 alias word='shuf -n1 /usr/share/dict/words'
+# TODO: to actually make this generate more secure passphrases (ones that are
+# not susceptible to dictionary attacks), we could either:
+# - Use a wordlist like EFF's wordlist
+# - Take the output of this alias and add/remove/change random characters
+alias phrase='shuf -n5 /usr/share/dict/words | tr "\n" " "'
