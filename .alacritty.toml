@@ -19,6 +19,8 @@ size = 16.0
 #
 # Fonts to try:
 #   Iosevka
+#   Iosevka Comfy
+#   Inconsolata
 #
 # Note:
 #   As of 11/11/2024, the 0xProto font from nerd fonts was using a fairly
@@ -64,6 +66,8 @@ program = "/bin/zsh"
 
 [window]
 option_as_alt = "Both"
+# Giving this a go! 😱
+decorations = "None"
 
 [window.padding]
 x = 5
@@ -75,5 +79,14 @@ import = [
   # looks pretty good too.
   # "~/.config/alacritty/theme.toml",
 ]
+  
+# Cursor colors
+# I like setting these when using the default alacritty theme. The main time it
+# is noticible is when using 'f' or 'd' motions within (n)vim. Without this, it
+# is hard to see where the cursor moves.
+# I suppose a better fix is arguably to make this change in my nvim theme.
+[colors.cursor]
+text   = '#2c2c2c'
+cursor = '#d9d9d9'
 
 [terminal]
