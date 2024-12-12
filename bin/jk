@@ -9,8 +9,8 @@ OPEN_IN_BROWSER=false
 # Current time in seconds
 CURRENT_TIME=$(date +%s)
 
-# Cache validity duration (30 minutes)
-CACHE_VALIDITY=$((30 * 60))
+# Cache validity duration in seconds (1 day)
+CACHE_VALIDITY=$((60 * 60 * 24))
 
 # Ensure jq and fzf are installed
 if ! command -v jq &> /dev/null || ! command -v fzf &> /dev/null; then
@@ -45,19 +45,32 @@ fetch_jenkins_data() {
     echo "  user = <user>:<api-token>"
     exit 1
   fi
-  local result=$(curl -s -o "$CACHE_FILE" -w "%{http_code}" "$JENKINS_URL" --config "$HOME/.jkconfig")
+  local header_check_file="/tmp/cache-header-found"
+  rm $header_check_file || true
+  # This is an interesting feature of curl, you can direct various parts of the
+  # output to different files using this syntax: %output{FILE}[%VAR]
+  local etag_header_check="%output{>>$header_check_file}%header{etag}"
+  local modified_since_header_check="%output{>>$header_check_file}%header{if-modified-since}"
+  local none_match_header_check="%output{>>$header_check_file}%header{if-none-match}"
+  local header_check="$etag_header_check$modified_since_header_check$none_match_header_check"
+  local result=$(curl -s -o "$CACHE_FILE" -w "%{http_code}$header_check" "$JENKINS_URL" --config "$HOME/.jkconfig")
   if [ "$result" -ne 200 ]; then
     echo "Failed to fetch Jenkins data. Did you provide a valid Jenkins API token?"
     rm "$CACHE_FILE"
     exit 1
   fi
+
+  # Check if the header check file exists and has content
+  if [[ -s $header_check_file ]] then
+    YELLOW='\u001b[0;33m'
+    RESET='\u001b[0m'
+    echo "$YELLOW!! Jenkins seems to be using cache headers now !!$RESET"
+    echo "The performance of this script can likely be improved"
+  fi
 }
 
 # Check cache validity
 if [ -f "$CACHE_FILE" ]; then
-  # NOTE: if the jenkins api ever started returning a last modified header or
-  # etag, we could just use `If-Modified-Since` or `If-None-Match` headers to
-  # avoid downloading the data if it hasn't changed.
   CACHE_TIME=$(date -r "$CACHE_FILE" +%s)
   TIME_DIFF=$((CURRENT_TIME - CACHE_TIME))
 
@@ -118,7 +131,7 @@ function search_jobs() {
     .fullDisplayName
   end'
   format_fzf_input="\($build_indicator) \($name)\t\(.url)"
-  JOB_SELECTION=$(jq -r "$filter_views | $select_jobs | \"$format_fzf_input\"" "$CACHE_FILE" | fzf --ansi --delimiter "\t" --with-nth=1..1)
+  JOB_SELECTION=$(jq -r "$filter_views | $select_jobs | \"$format_fzf_input\"" "$CACHE_FILE" | fzf --height=10% --ansi --delimiter "\t" --with-nth=1..1)
   # Exit if no job is selected
   if [ -z "$JOB_SELECTION" ]; then
       echo "No job selected."
