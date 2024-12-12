@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+# TODO: idea for this utility:
+# take whatever is in the clipboard, and open an editor with the contents.
+# make modifications and close, results are stored in the clipboard.

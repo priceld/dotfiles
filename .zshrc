@@ -12,6 +12,10 @@
 FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
 autoload -Uz compinit && compinit
 
+# lazygit needs this var exported in order to look under .config/lazygit for
+# the global config file
+export XDG_CONFIG_HOME="$HOME/.config"
+
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 # Download Zinit, if it's not there yet
 if [ ! -d "$ZINIT_HOME" ]; then

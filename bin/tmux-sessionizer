@@ -45,6 +45,7 @@ else
   # Any personal projects that I really care about
   projects+=( $(realpath ~/work/playground/ynab-bun) $(realpath ~/work/playground/qmk_firmware) )
   # TODO: sort projects by frequency of use
+  # TODO: and maybe by which ones are currently open in tmux
   # Get the size of the terminal in rows x columns
   read rows columns < <(stty size)
   # Get an ascii banner to use as the header for some visual interest
