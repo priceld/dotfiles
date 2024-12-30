@@ -242,6 +242,11 @@ require("lazy").setup({
 				-- uncomment if you need vim tutor
 				"tutor",
 				"zipPlugin",
+				"matchit",
+				"matchparen",
+				"shada",
+				-- If things start getting weird with copy/paste may want to uncomment ocs52
+				"ocs52",
 			},
 		},
 	},
@@ -454,9 +459,11 @@ require("lazy").setup({
 		-- LSP
 		{
 			"neovim/nvim-lspconfig",
+			event = "FileType",
 			dependencies = {
 				"williamboman/mason.nvim",
 				"williamboman/mason-lspconfig.nvim",
+				"saghen/blink.cmp",
 			},
 			config = function()
 				require("mason").setup({
@@ -467,15 +474,17 @@ require("lazy").setup({
 				})
 				-- Setup language servers.
 				local lspconfig = require("lspconfig")
+				local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 				-- Typescript
-				lspconfig.ts_ls.setup({})
+				lspconfig.ts_ls.setup({ capabilities = capabilities })
 
 				-- C/C++
-				lspconfig.clangd.setup({})
+				lspconfig.clangd.setup({ capabilities = capabilities })
 
 				-- Rust
 				lspconfig.rust_analyzer.setup({
+					capabilities = capabilities,
 					-- Server-specific settings. See `:help lspconfig-setup`
 					settings = {
 						["rust-analyzer"] = {
@@ -513,7 +522,9 @@ require("lazy").setup({
 					}
 				end
 				if configs.bash_lsp then
-					lspconfig.bash_lsp.setup({})
+					lspconfig.bash_lsp.setup({
+						capabilities = capabilities,
+					})
 				end
 
 				-- Global mappings.
@@ -549,54 +560,37 @@ require("lazy").setup({
 				})
 			end,
 		},
-		-- LSP-based code-completion
 		{
-			"hrsh7th/nvim-cmp",
-			-- load cmp on InsertEnter
-			event = "InsertEnter",
-			-- these dependencies will only be loaded when cmp loads
-			-- dependencies are always lazy-loaded unless specified otherwise
-			dependencies = {
-				"neovim/nvim-lspconfig",
-				"hrsh7th/cmp-nvim-lsp",
-				"hrsh7th/cmp-buffer",
-				"hrsh7th/cmp-path",
-			},
-			config = function()
-				local cmp = require("cmp")
-				cmp.setup({
-					snippet = {
-						-- REQUIRED by nvim-cmp. get rid of it once we can
-						expand = function(args)
-							vim.fn["vsnip#anonymous"](args.body)
-						end,
-					},
-					mapping = cmp.mapping.preset.insert({
-						["<C-b>"] = cmp.mapping.scroll_docs(-4),
-						["<C-f>"] = cmp.mapping.scroll_docs(4),
-						["<C-Space>"] = cmp.mapping.complete(),
-						["<C-e>"] = cmp.mapping.abort(),
-						-- Accept currently selected item.
-						-- Set `select` to `false` to only confirm explicitly selected items.
-						["<CR>"] = cmp.mapping.confirm({ select = true }),
-					}),
-					sources = cmp.config.sources({
-						{ name = "nvim_lsp" },
-					}, {
-						{ name = "path" },
-					}),
-					experimental = {
-						ghost_text = true,
-					},
-				})
+			"saghen/blink.cmp",
+			version = "v0.*",
+			---@module 'blink.cmp'
+			---@type blink.cmp.Config
+			opts = {
+				-- 'default' for mappings similar to built-in completion
+				keymap = { preset = "default" },
 
-				-- Enable completing paths in :
-				cmp.setup.cmdline(":", {
-					sources = cmp.config.sources({
-						{ name = "path" },
-					}),
-				})
-			end,
+				appearance = {
+					-- Sets the fallback highlight groups to nvim-cmp's highlight groups
+					-- Useful for when your theme doesn't support blink.cmp
+					-- will be removed in a future release
+					use_nvim_cmp_as_default = true,
+					-- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+					-- Adjusts spacing to ensure icons are aligned
+					nerd_font_variant = "mono",
+				},
+
+				-- default list of enabled providers defined so that you can extend it
+				-- elsewhere in your config, without redefining it, due to `opts_extend`
+				sources = {
+					default = { "lsp", "path", "buffer" },
+				},
+
+				-- experimental signature help support
+				signature = { enabled = true },
+			},
+			-- allows extending the providers array elsewhere in your config
+			-- without having to redefine it
+			opts_extend = { "sources.default" },
 		},
 		{
 			"f-person/git-blame.nvim",
