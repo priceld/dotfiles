@@ -56,6 +56,9 @@ function -update-ps1() {
     # I don't really understand this, but somehow using the "$" prefix along with single quotes
     # allows us to use \n and actually get a newline
     export PROMPT_BASE_1="%F{green}${SSH_TTY:+%n@%m}%f%B${SSH_TTY:+:}%b%F{blue}"
+    if [ -n "$LEARN_ENV_NAME" ]; then
+      export PROMPT_BASE_1="($LEARN_ENV_NAME) $PROMPT_BASE_1"
+    fi
     export PROMPT_BASE_2="%F{yellow}%B%(1j.*.)%(?..!)%b%f %B%(!.%F{yellow}%n%f.)%(!.%F{yellow}.%F{red})$(printf '\u276f%.0s' {1..$LVL})%f%b "
     export PROMPT=$PROMPT_BASE_1$'\n'$PROMPT_BASE_2
   fi
