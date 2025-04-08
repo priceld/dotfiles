@@ -2,6 +2,12 @@
 vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
 vim.g.mapleader = " "
 
+-- Debug logging!
+-- vim.env.NVIM_LOG_FILE = vim.fn.expand("~/nvim.log")
+-- vim.fn.writefile({}, vim.env.NVIM_LOG_FILE, "b")
+-- vim.o.verbosefile = vim.env.NVIM_LOG_FILE
+-- vim.o.verbose = 3
+
 -------------------------------------------------------------------------------
 --
 -- preferences
@@ -19,9 +25,9 @@ vim.keymap.set("n", "<bs>", "<C-o>", { desc = "Go back in jumplist" })
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<cr>", { desc = "Clear search highlights" })
 
 -- TODO: I would really like a keymap for visual mode that takes the selected text and searches for it with Rg.
-vim.keymap.set("n", "<leader>/", ":Rg ", { desc = "Ripgrep" })
-vim.keymap.set("n", "<leader>f", ":Files<cr>", { desc = "Project files" })
-vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
+-- vim.keymap.set("n", "<leader>/", ":Rg ", { desc = "Ripgrep" })
+-- vim.keymap.set("n", "<leader>f", ":Files<cr>", { desc = "Project files" })
+-- vim.keymap.set("n", "<leader>b", ":Buffers<cr>", { desc = "Buffers" })
 
 -- Yank, delete, change should copy to system clipboard.
 -- Apparently, this can increase startup time. So schedule it to be set after
@@ -258,7 +264,7 @@ require("lazy").setup({
 			lazy = false, -- load at start
 			priority = 1000, -- load first
 			config = function()
-				vim.cmd([[colorscheme base16-gruvbox-material-dark-medium]])
+				vim.cmd([[colorscheme gruvbox-material-dark-medium]])
 				vim.o.background = "dark"
 				-- Make it clearly visible which argument we're at.
 				local marked = vim.api.nvim_get_hl(0, { name = "PMenu" })
@@ -327,6 +333,15 @@ require("lazy").setup({
         { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
         { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
       },
+			config = function()
+				-- Make the flash label more prominant. Using "Substitute" as the base since that's the default in flash
+				local marked = vim.api.nvim_get_hl(0, { name = "Substitute" })
+				vim.api.nvim_set_hl(
+					0,
+					"FlashLabel",
+					{ fg = marked.fg, bg = "#ea6962", ctermfg = marked.ctermfg, ctermbg = 9, bold = marked.bold }
+				)
+			end,
 		},
 		-- better %
 		{
@@ -367,7 +382,7 @@ require("lazy").setup({
 				vim.api.nvim_create_user_command("Files", function(arg)
 					vim.fn["fzf#vim#files"](
 						arg.qargs,
-						{ source = list_cmd(), options = { "--tiebreak=index", "--info=hidden" } },
+						{ source = list_cmd(), options = { "--tiebreak=index", "--info=hidden", "--scheme=path" } },
 						arg.bang
 					)
 				end, { bang = true, nargs = "?", complete = "dir" })
@@ -482,6 +497,10 @@ require("lazy").setup({
 				-- C/C++
 				lspconfig.clangd.setup({ capabilities = capabilities })
 
+				-- TODO: this seems to need additional setup and I don't want to mess
+				-- with installing another version of java
+				-- lspconfig.jdtls.setup({ capabilities = capabilities })
+
 				-- Rust
 				lspconfig.rust_analyzer.setup({
 					capabilities = capabilities,
@@ -573,7 +592,7 @@ require("lazy").setup({
 					-- Sets the fallback highlight groups to nvim-cmp's highlight groups
 					-- Useful for when your theme doesn't support blink.cmp
 					-- will be removed in a future release
-					use_nvim_cmp_as_default = true,
+					use_nvim_cmp_as_default = false,
 					-- Set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
 					-- Adjusts spacing to ensure icons are aligned
 					nerd_font_variant = "mono",
@@ -591,6 +610,80 @@ require("lazy").setup({
 			-- allows extending the providers array elsewhere in your config
 			-- without having to redefine it
 			opts_extend = { "sources.default" },
+			config = function(_, opts)
+				require("blink.cmp").setup(opts)
+				-- The following highlight groups are from https://github.com/ellisonleao/gruvbox.nvim/pull/372/files?w=1
+				-- I don't use that plugin, but it seems like a good starting place to get some nice color to my completion
+				-- GruvboxFg0 = { fg = colors.fg0 },
+				-- GruvboxFg1 = { fg = colors.fg1 },
+				-- GruvboxFg2 = { fg = colors.fg2 },
+				-- GruvboxFg3 = { fg = colors.fg3 },
+				-- GruvboxFg4 = { fg = colors.fg4 },
+				-- GruvboxGray = { fg = colors.gray },
+				-- GruvboxBg0 = { fg = colors.bg0 },
+				-- GruvboxBg1 = { fg = colors.bg1 },
+				-- GruvboxBg2 = { fg = colors.bg2 },
+				-- GruvboxBg3 = { fg = colors.bg3 },
+				-- GruvboxBg4 = { fg = colors.bg4 },
+				-- GruvboxRed = { fg = colors.red },
+				-- GruvboxRedBold = { fg = colors.red, bold = config.bold },
+				-- GruvboxGreen = { fg = colors.green },
+				-- GruvboxGreenBold = { fg = colors.green, bold = config.bold },
+				-- GruvboxYellow = { fg = colors.yellow },
+				-- GruvboxYellowBold = { fg = colors.yellow, bold = config.bold },
+				-- GruvboxBlue = { fg = colors.blue },
+				-- GruvboxBlueBold = { fg = colors.blue, bold = config.bold },
+				-- GruvboxPurple = { fg = colors.purple },
+				-- GruvboxPurpleBold = { fg = colors.purple, bold = config.bold },
+				-- GruvboxAqua = { fg = colors.aqua },
+				-- GruvboxAquaBold = { fg = colors.aqua, bold = config.bold },
+				-- GruvboxOrange = { fg = colors.orange },
+				-- GruvboxOrangeBold = { fg = colors.orange, bold = config.bold },
+
+				-- vim.api.nvim_set_hl(0, "BlinkCmpLabel", { link = "GruvboxFg0" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpLabelDeprecated", { link = "GruvboxFg1" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpLabelMatch", { link = "GruvboxBlueBold" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpLabelDetail", { link = "GruvboxGray" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpLabelDescription", { link = "GruvboxGray" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindText", { link = "@lsp.type.string" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindVariable", { link = "@lsp.type.variable" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindMethod", { link = "@lsp.type.method" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindFunction", { link = "@lsp.type.function" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindConstructor", { link = "@constructor" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindUnit", { link = "@lsp.type.namespace" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindField", { link = "@lsp.type.property" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindClass", { link = "@lsp.type.class" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindInterface", { link = "@lsp.type.interface" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindModule", { link = "@lsp.type.namespace" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindProperty", { link = "@lsp.type.property" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindValue", { link = "@constant" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindEnum", { link = "@lsp.type.enum" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindOperator", { link = "@lsp.type.operator" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindKeyword", { link = "@lsp.type.keyword" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindEvent", { link = "@lsp.type.event" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindReference", { link = "@lsp.type.variable" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindColor", { link = "@lsp.type.keyword" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindSnippet", { link = "@lsp.type.string" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindFile", { link = "@string.special.path" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindFolder", { link = "@string.special.path" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindEnumMember", { link = "@lsp.type.enumMember" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindConstant", { link = "@constant" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindStruct", { link = "@lsp.type.struct" })
+				vim.api.nvim_set_hl(0, "BlinkCmpKindTypeParameter", { link = "@lsp.type.typeParameter" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpSource", { link = "GruvboxGray" })
+				-- vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { link = "@lsp.type.text" })
+			end,
+		},
+		-- {
+		-- 	"rktjmp/lush.nvim",
+		-- 	-- if you wish to use your own colorscheme:
+		-- 	-- { dir = '/absolute/path/to/colorscheme', lazy = true },
+		-- },
+		{
+			"NvChad/nvim-colorizer.lua",
+			config = function()
+				require("colorizer").setup()
+			end,
 		},
 		{
 			"f-person/git-blame.nvim",
@@ -634,8 +727,8 @@ require("lazy").setup({
 						["jsonc"] = { "prettier" },
 						-- Disable formatting for YAML files since it messes up our locale file conventions
 						--["yaml"] = { "prettier" },
-						["markdown"] = { "prettier" },
-						["markdown.mdx"] = { "prettier" },
+						-- ["markdown"] = { "prettier" },
+						-- ["markdown.mdx"] = { "prettier" },
 					},
 					-- I disabled this while working on Ally
 					format_on_save = {
@@ -793,17 +886,87 @@ require("lazy").setup({
 			end,
 		},
 		-- Not sure I like using the file browser because it does not search recursively
-		-- {
-		-- 	"nvim-telescope/telescope.nvim",
-		-- 	keys = {
-		-- 		-- hijacking <leader>f to test out telescope
-		-- 		{ "<leader>f", "<cmd>Telescope file_browser<cr>", mode = { "n" }, desc = "Telescope file browser" },
-		-- 	},
-		-- 	dependencies = {
-		-- 		"nvim-telescope/telescope-file-browser.nvim",
-		-- 		"nvim-lua/plenary.nvim", -- required by telescope
-		-- 	},
-		-- },
+		{
+			"nvim-telescope/telescope.nvim",
+			dependencies = {
+				"nvim-lua/plenary.nvim", -- required by telescope
+				{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+			},
+			keys = {
+				-- hijacking <leader>f to test out telescope
+				{
+					"<leader>f",
+					"<cmd>Telescope find_files hidden=true<cr>",
+					mode = { "n" },
+					{ desc = "Telescope find files" },
+				},
+				{ "<leader>/", "<cmd>Telescope live_grep<cr>", mode = { "n" }, { desc = "Telescope live grep" } },
+				{ "<leader>b", "<cmd>Telescope buffers<cr>", mode = { "n" }, { desc = "Telescope buffers" } },
+			},
+			config = function()
+				require("telescope").setup({
+					defaults = {
+						path_display = { shorten },
+						file_ignore_patterns = {
+							"node_modules",
+						},
+					},
+					pickers = {
+						-- find_files = {
+						-- 	-- I would also like to sort files to prioritize files closest to the current file
+						-- 	sorter = sorters.new({
+						-- 		scoring_function = function(_, _, entry)
+						-- 			-- Prioritize all files before `package-lock.json`
+						-- 			if entry.path:match("package%-lock%.json$") then
+						-- 				return 1e6 -- Assign a high score
+						-- 			end
+						-- 			return 0 -- Default score
+						-- 		end,
+						-- 	}),
+						-- },
+						--      live_grep = {
+						--        sorter
+						--      }
+					},
+					extensions = {
+						fzf = {},
+					},
+				})
+
+				require("telescope").load_extension("fzf")
+			end,
+		},
+		{
+			"tpope/vim-surround",
+		},
+		-- To get this to work, I also had to install the LSP client by hand (see the github repo)
+		{
+			"cordx56/rustowl",
+			ft = { "rust" },
+			dependencies = { "neovim/nvim-lspconfig" },
+			config = function()
+				require("lspconfig").rustowlsp.setup()
+				-- TODO: probably need to setup the highlights to better match my theme
+			end,
+		},
+		{
+			"christoomey/vim-tmux-navigator",
+			cmd = {
+				"TmuxNavigateLeft",
+				"TmuxNavigateDown",
+				"TmuxNavigateUp",
+				"TmuxNavigateRight",
+				"TmuxNavigatePrevious",
+				"TmuxNavigatorProcessList",
+			},
+			keys = {
+				{ "<c-h>", "<cmd><C-U>TmuxNavigateLeft<cr>" },
+				{ "<c-j>", "<cmd><C-U>TmuxNavigateDown<cr>" },
+				{ "<c-k>", "<cmd><C-U>TmuxNavigateUp<cr>" },
+				{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
+				{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+			},
+		},
 		{
 			"kawre/leetcode.nvim",
 			-- Lazy load this plugin always, unless "leetcode.nvim" is the first arg
