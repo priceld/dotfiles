@@ -4,39 +4,37 @@
 # You can then run zprof to see the most time consuming parts of startup
 # zmodload zsh/zprof
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-
 # Hardcoding homebrew path because $(brew --prefix) is slow
-FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
-autoload -Uz compinit && compinit
+FPATH="$HOMEBREW_PREFIX/share/zsh/site-functions:${FPATH}"
+
+autoload -Uz compinit
+if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+  compinit
+else
+  compinit -C
+fi
+# This is from omz's lib/completion.zsh. I don't know why it is needed except
+# that it defines/loads "complete"
+autoload -U +X bashcompinit && bashcompinit
 
 # lazygit needs this var exported in order to look under .config/lazygit for
 # the global config file
 export XDG_CONFIG_HOME="$HOME/.config"
 
-ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-# Download Zinit, if it's not there yet
-if [ ! -d "$ZINIT_HOME" ]; then
-  mkdir -p "$(dirname $ZINIT_HOME)"
-  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-fi
+# I'm tired of using a package manager because they make everything slow. So
+# loading zsh-syntax-highlighting manually.
+source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
-source "${ZINIT_HOME}/zinit.zsh"
-
-zinit light ohmyzsh/ohmyzsh
-# zinit snippet OMZP::git
-
-# Replace default zsh completion menu with fzf
-zinit light Aloxaf/fzf-tab
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-syntax-highlighting
+# Similarly, this is how to manually configure the up/down arrow functionality
+# from ohmyzsh (e.g. type + search up in history) without using ohmyzsh.
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # Up
+bindkey "^[[B" down-line-or-beginning-search # Down
 
 export LANG=en_US.UTF-8
-
-# Leaving this here so I can investigate it later.
-# source $HOME/.config/tmuxinator/tmuxinator.zsh
 
 setopt auto_cd
 
@@ -51,9 +49,6 @@ if (( $+commands[kubectl] )) {
     $0 "$@"
   }
 }
-
-# P10k customizations
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 
 # from: https://blog.mattclemente.com/2020/06/26/oh-my-zsh-slow-to-load.html
 timezsh() {
@@ -73,8 +68,13 @@ bindkey -v
 bindkey '^q' push-line-or-edit
 
 export WORK_HOME="$HOME/work"
+LEARN_UTIL_PROFILE_ROOT="$WORK_HOME/learn.util/users/logan.price"
+if [ ! -d "$LEARN_UTIL_PROFILE_ROOT" ]; then
+  echo "!!!!! WARNING !!!!!"
+  echo "Learn util profile root does not exist: $LEARN_UTIL_PROFILE_ROOT"
+fi
 # Load work stuff
-[ -f "$WORK_HOME/learn.util/users/logan.price/bb.zsh" ] && source "$WORK_HOME/learn.util/users/logan.price/bb.zsh"
+[ -f "$LEARN_UTIL_PROFILE_ROOT/bb.zsh" ] && source "$LEARN_UTIL_PROFILE_ROOT/bb.zsh"
 
 export EDITOR=nvim
 
@@ -102,6 +102,7 @@ export BAT_THEME="1337"
 #
 
 # I don't like having this...I really only need it for Aladdin tests.
+# TODO: check out https://docs.astral.sh/uv/
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 [ $+commands[pyenv] ] || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -123,9 +124,6 @@ if (( $+commands[eza] )) {
   alias la='eza -ahl --git --group-directories-first'
   alias ll='eza -hl --git --group-directories-first --no-user'
 }
-
-# TODO: test this to see if it is something worth keeping
-eval "$(atuin init --disable-up-arrow zsh)"
 
 # I wasn't able to lazy load this easily for some reason
 eval "$(zoxide init zsh)"
