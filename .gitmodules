@@ -4,3 +4,6 @@
 [submodule ".config/alacritty/alacritty-theme"]
 	path = .config/alacritty/alacritty-theme
 	url = https://github.com/alacritty/alacritty-theme.git
+[submodule ".zsh/zsh-async"]
+	path = .zsh/zsh-async
+	url = https://github.com/mafredri/zsh-async.git
