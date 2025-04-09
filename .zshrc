@@ -21,10 +21,6 @@ autoload -U +X bashcompinit && bashcompinit
 # the global config file
 export XDG_CONFIG_HOME="$HOME/.config"
 
-# I'm tired of using a package manager because they make everything slow. So
-# loading zsh-syntax-highlighting manually.
-source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
 # Similarly, this is how to manually configure the up/down arrow functionality
 # from ohmyzsh (e.g. type + search up in history) without using ohmyzsh.
 autoload -U up-line-or-beginning-search
@@ -65,7 +61,12 @@ eval "$(fnm env --use-on-cd)"
 bindkey -v
 
 # From: https://sgeb.io/posts/bash-zsh-half-typed-commands/
-bindkey '^q' push-line-or-edit
+bindkey '^Q' push-line
+# NOTE: in order for Ctrl+q to work, flow control has to be turned off. This is
+# generally considered fine when using local terminals, but may need to turn it
+# off (stty ixon) if connecting to other devices over a serial connection.
+# OR maybe I should just pick a different shortcut...
+stty -ixon
 
 export WORK_HOME="$HOME/work"
 LEARN_UTIL_PROFILE_ROOT="$WORK_HOME/learn.util/users/logan.price"
@@ -159,4 +160,11 @@ export PATH="$GOBIN:$PATH"
 source $HOME/.zsh/aliases
 source $HOME/.zsh/functions
 
-source $HOME/.zsh/wincent-prompt
+if [[ -z "$NO_PROMPT" ]]; then
+  source $HOME/.zsh/wincent-prompt
+fi
+
+# I'm tired of using a package manager because they make everything slow. So
+# loading zsh-syntax-highlighting manually.
+# source "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+source "$HOME/.zsh/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"

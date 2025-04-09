@@ -1,2 +1,3 @@
 [general]
-import = ["~/.config/alacritty/themes/themes/afterglow.toml"]
+# TODO: install/clone alacritty-theme an add path to afterglow
+import = ["~/.config/alacritty/alacritty-theme/afterglow.toml"]
