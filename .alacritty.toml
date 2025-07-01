@@ -20,6 +20,7 @@ size = 16.0
 # Fonts to try:
 #   Iosevka
 #   Iosevka Comfy
+#   Victor Mono
 #   Inconsolata
 #
 # Note:
@@ -29,19 +30,23 @@ size = 16.0
 #   myself using their fontforge tool.
 #   I did the same with Lilex.
 [font.bold]
-family = "0xProto Nerd Font"
+# family = "0xProto Nerd Font"
+family = "Lilex Nerd Font"
 style = "Bold"
 
 [font.bold_italic]
-family = "0xProto Nerd Font"
+# family = "0xProto Nerd Font"
+family = "Lilex Nerd Font"
 style = "Italic"
 
 [font.italic]
-family = "0xProto Nerd Font"
+# family = "0xProto Nerd Font"
+family = "Lilex Nerd Font"
 style = "Italic"
 
 [font.normal]
-family = "0xProto Nerd Font"
+# family = "0xProto Nerd Font"
+family = "Lilex Nerd Font"
 
 [[hints.enabled]]
 command = "open"
