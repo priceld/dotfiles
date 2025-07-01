@@ -127,6 +127,12 @@ vim.opt.colorcolumn = "120"
 -- also, show tabs nicer
 vim.opt.listchars = "tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•"
 
+--
+
+-- Most of this error format, is taken straight from the official tsc compiler
+-- from nvim/runtime/compiler/tsc.vim
+-- table.insert(vim.opt.errorformat, "%f %#(%l\\,%c): %trror TS%n: %m," .. "%trror TS%n: %m," .. "%-G%.%#")
+
 -------------------------------------------------------------------------------
 --
 -- hotkeys
@@ -264,7 +270,7 @@ require("lazy").setup({
 			lazy = false, -- load at start
 			priority = 1000, -- load first
 			config = function()
-				vim.cmd([[colorscheme gruvbox-material-dark-medium]])
+				vim.cmd.colorscheme("gruvbox-material-dark-medium")
 				vim.o.background = "dark"
 				-- Make it clearly visible which argument we're at.
 				local marked = vim.api.nvim_get_hl(0, { name = "PMenu" })
@@ -492,10 +498,15 @@ require("lazy").setup({
 				local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 				-- Typescript
-				lspconfig.ts_ls.setup({ capabilities = capabilities })
+				lspconfig.ts_ls.setup({
+					root_dir = lspconfig.util.root_pattern("nx.json", "package.json"),
+					capabilities = capabilities,
+				})
 
 				-- C/C++
 				lspconfig.clangd.setup({ capabilities = capabilities })
+
+				lspconfig.eslint.setup({ capabilities = capabilities })
 
 				-- TODO: this seems to need additional setup and I don't want to mess
 				-- with installing another version of java
@@ -548,7 +559,7 @@ require("lazy").setup({
 
 				-- Global mappings.
 				-- See `:help vim.diagnostic.*` for documentation on any of the below functions
-				vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
+				-- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
 				vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 				vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 				vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
@@ -581,7 +592,8 @@ require("lazy").setup({
 		},
 		{
 			"saghen/blink.cmp",
-			version = "v0.*",
+			event = "VeryLazy",
+			version = "v1.*",
 			---@module 'blink.cmp'
 			---@type blink.cmp.Config
 			opts = {
@@ -674,20 +686,13 @@ require("lazy").setup({
 				-- vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { link = "@lsp.type.text" })
 			end,
 		},
-		-- {
-		-- 	"rktjmp/lush.nvim",
-		-- 	-- if you wish to use your own colorscheme:
-		-- 	-- { dir = '/absolute/path/to/colorscheme', lazy = true },
-		-- },
 		{
 			"NvChad/nvim-colorizer.lua",
-			config = function()
-				require("colorizer").setup()
-			end,
+			name = "colorizer",
+			cmd = { "Colorize" },
 		},
 		{
 			"f-person/git-blame.nvim",
-			-- event = "VeryLazy",
 			event = "BufReadPre",
 			config = function()
 				require("gitblame").setup({
@@ -885,70 +890,59 @@ require("lazy").setup({
 				require("boole").setup()
 			end,
 		},
-		-- Not sure I like using the file browser because it does not search recursively
 		{
-			"nvim-telescope/telescope.nvim",
-			dependencies = {
-				"nvim-lua/plenary.nvim", -- required by telescope
-				{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-			},
-			keys = {
-				-- hijacking <leader>f to test out telescope
-				{
-					"<leader>f",
-					"<cmd>Telescope find_files hidden=true<cr>",
-					mode = { "n" },
-					{ desc = "Telescope find files" },
-				},
-				{ "<leader>/", "<cmd>Telescope live_grep<cr>", mode = { "n" }, { desc = "Telescope live grep" } },
-				{ "<leader>b", "<cmd>Telescope buffers<cr>", mode = { "n" }, { desc = "Telescope buffers" } },
-			},
+			"ibhagwan/fzf-lua",
+			event = "VeryLazy",
 			config = function()
-				require("telescope").setup({
-					defaults = {
-						path_display = { shorten },
-						file_ignore_patterns = {
-							"node_modules",
-						},
-					},
-					pickers = {
-						-- find_files = {
-						-- 	-- I would also like to sort files to prioritize files closest to the current file
-						-- 	sorter = sorters.new({
-						-- 		scoring_function = function(_, _, entry)
-						-- 			-- Prioritize all files before `package-lock.json`
-						-- 			if entry.path:match("package%-lock%.json$") then
-						-- 				return 1e6 -- Assign a high score
-						-- 			end
-						-- 			return 0 -- Default score
-						-- 		end,
-						-- 	}),
-						-- },
-						--      live_grep = {
-						--        sorter
-						--      }
-					},
-					extensions = {
-						fzf = {},
+				require("fzf-lua").setup({
+					grep = {
+						hidden = true,
 					},
 				})
-
-				require("telescope").load_extension("fzf")
+				vim.keymap.set("n", "<leader>f", "<cmd>FzfLua files<cr>", { desc = "FzfLua find files" })
+				vim.keymap.set(
+					"n",
+					"<leader>F",
+					"<cmd>FzfLua files resume=true<cr>",
+					{ desc = "Resume previous find files" }
+				)
+				vim.keymap.set("n", "<leader>/", "<cmd>FzfLua live_grep<cr>", { desc = "FzfLua live grep" })
+				vim.keymap.set(
+					"n",
+					"<leader>?",
+					"<cmd>FzfLua live_grep resume=true<cr>",
+					{ desc = "Resume previous live grep" }
+				)
+				vim.keymap.set("n", "<leader>*", function()
+					-- Get the current word under the cursor
+					local word = vim.fn.expand("<cword>")
+					-- Escape for shell
+					word = vim.fn.shellescape(word)
+					vim.cmd("FzfLua live_grep search=" .. word)
+				end, { noremap = true, silent = true, desc = "FzfLua live_grep with current word" })
+				vim.keymap.set("n", "<leader>b", "<cmd>FzfLua buffers<cr>", { desc = "FzfLua find buffers" })
+				vim.keymap.set("n", "<leader>B", "<cmd>FzfLua buffers<cr>", { desc = "Resume previous find buffers" })
 			end,
+		},
+		{
+			"MeanderingProgrammer/render-markdown.nvim",
+			dependencies = { "nvim-treesitter/nvim-treesitter" },
+			ft = { "markdown" },
+			---@module 'render-markdown'
+			---@type render.md.UserConfig
+			opts = {
+				render_modes = { "n", "c", "t" },
+			},
 		},
 		{
 			"tpope/vim-surround",
+			event = "VeryLazy",
 		},
 		-- To get this to work, I also had to install the LSP client by hand (see the github repo)
-		{
-			"cordx56/rustowl",
-			ft = { "rust" },
-			dependencies = { "neovim/nvim-lspconfig" },
-			config = function()
-				require("lspconfig").rustowlsp.setup()
-				-- TODO: probably need to setup the highlights to better match my theme
-			end,
-		},
+		-- {
+		-- 	"cordx56/rustowl",
+		-- 	ft = { "rust" },
+		-- },
 		{
 			"christoomey/vim-tmux-navigator",
 			cmd = {
@@ -966,6 +960,36 @@ require("lazy").setup({
 				{ "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
 				{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
 			},
+		},
+		{
+			"stevearc/oil.nvim",
+			---@module 'oil'
+			---@type oil.SetupOpts
+			config = function()
+				require("oil").setup({
+					delete_to_trash = true,
+					-- No icons please
+					columns = {},
+					view_options = {
+						show_hidden = true,
+						is_always_hidden = function(name, bufnr)
+							return name == ".DS_Store"
+						end,
+					},
+					skip_confirm_for_simple_edits = true,
+				})
+
+				-- vim.keymap.set("n", "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil explorer" })
+			end,
+			keys = {
+				{ "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil explorer" } },
+			},
+		},
+		{
+			"github/copilot.vim",
+		},
+		{
+			"DanBradbury/copilot-chat.vim",
 		},
 		{
 			"kawre/leetcode.nvim",
