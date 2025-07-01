@@ -16,3 +16,5 @@ gui:
       - "⠏"
     # The "speed" of the spinner in milliseconds.
     rate: 50
+git:
+  autoForwardBranches: none

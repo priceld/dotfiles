@@ -17,6 +17,9 @@ fi
 # that it defines/loads "complete"
 autoload -U +X bashcompinit && bashcompinit
 
+# Disable highlighting on paste
+zle_highlight=('paste:none')
+
 # lazygit needs this var exported in order to look under .config/lazygit for
 # the global config file
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -59,6 +62,10 @@ eval "$(fnm env --use-on-cd)"
 
 # Enable VI-mode
 bindkey -v
+
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey "^E" edit-command-line
 
 # From: https://sgeb.io/posts/bash-zsh-half-typed-commands/
 bindkey '^Q' push-line
