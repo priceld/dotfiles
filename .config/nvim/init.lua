@@ -121,8 +121,8 @@ vim.opt.diffopt:append("iwhite")
 --- https://luppeng.wordpress.com/2020/10/10/when-to-use-each-of-the-git-diff-algorithms/
 vim.opt.diffopt:append("algorithm:histogram")
 vim.opt.diffopt:append("indent-heuristic")
--- show a column at 120 characters as a guide for long lines
-vim.opt.colorcolumn = "120"
+-- show a column at 80 characters as a guide for long lines
+vim.opt.colorcolumn = "80"
 -- show more hidden characters
 -- also, show tabs nicer
 vim.opt.listchars = "tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•"
@@ -161,9 +161,9 @@ vim.keymap.set("n", "*", "*zz", { silent = true })
 vim.keymap.set("n", "#", "#zz", { silent = true })
 vim.keymap.set("n", "g*", "g*zz", { silent = true })
 -- "very magic" (less escaping needed) regexes by default
-vim.keymap.set("n", "?", "?\\v")
-vim.keymap.set("n", "/", "/\\v")
-vim.keymap.set("c", "%s/", "%sm/")
+-- vim.keymap.set("n", "?", "?\\v")
+-- vim.keymap.set("n", "/", "/\\v")
+-- vim.keymap.set("c", "%s/", "%sm/")
 -- open new file adjacent to current file
 vim.keymap.set("n", "<leader>o", ':e <C-R>=expand("%:p:h") . "/" <cr>')
 -- no arrow keys --- force yourself to use the home row
@@ -270,7 +270,18 @@ require("lazy").setup({
 			lazy = false, -- load at start
 			priority = 1000, -- load first
 			config = function()
-				vim.cmd.colorscheme("gruvbox-material-dark-medium")
+				-- Color shemes to try:
+				-- chinoiserie-night
+				-- eighties
+				-- everforest-dark-hard
+				-- penumbra-dark-contrast-plus
+				-- railscasts
+				-- soft-server
+				-- tender
+				-- tokyo-night-dark
+				-- tomorrow-night
+				-- vim.cmd.colorscheme("gruvbox-material-dark-medium")
+				vim.cmd.colorscheme("everforest-dark-hard")
 				vim.o.background = "dark"
 				-- Make it clearly visible which argument we're at.
 				local marked = vim.api.nvim_get_hl(0, { name = "PMenu" })
@@ -325,6 +336,10 @@ require("lazy").setup({
 					end
 				end
 			end,
+		},
+		{
+			-- TODO: may need to make this lazy
+			"NMAC427/guess-indent.nvim",
 		},
 		{
 			"folke/flash.nvim",
@@ -494,6 +509,11 @@ require("lazy").setup({
 					-- ensure_installed = { "ts_ls", "lua_ls", "rust_analyzer", "html", "jsonls" },
 				})
 
+				vim.lsp.config("ts_ls", {
+					-- root_dir = require("lspconfig.util").root_pattern("nx.json", "package.json"),
+					root_markers = { "nx.json", "package.json", ".git" },
+				})
+
 				-- Since Neovim 0.11, nvim-lspconfig is no longer needed to configure
 				-- and enable LSP servers. It can now be done via builtin APIs (i.e.
 				-- `vim.lsp.config()` and `vim.lsp.enable()`). However, nvim-lspconfig
@@ -576,37 +596,37 @@ require("lazy").setup({
 				-- 		})
 				-- 	end
 				--
-				-- 	-- Global mappings.
-				-- 	-- See `:help vim.diagnostic.*` for documentation on any of the below functions
-				-- 	-- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
-				-- 	vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-				-- 	vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-				-- 	vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
+				-- Global mappings.
+				-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+				-- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
+				vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+				vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+				vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 				--
-				-- 	-- Use LspAttach autocommand to only map the following keys
-				-- 	-- after the language server attaches to the current buffer
-				-- 	vim.api.nvim_create_autocmd("LspAttach", {
-				-- 		group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-				-- 		callback = function(ev)
-				-- 			-- Enable completion triggered by <c-x><c-o>
-				-- 			vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
-				--
-				-- 			-- Buffer local mappings.
-				-- 			-- See `:help vim.lsp.*` for documentation on any of the below functions
-				-- 			local opts = { buffer = ev.buf }
-				-- 			vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-				-- 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				-- 			vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-				-- 			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-				-- 			vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
-				-- 			--vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
-				-- 			vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, opts)
-				-- 			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-				-- 			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-				--
-				-- 			local client = vim.lsp.get_client_by_id(ev.data.client_id)
-				-- 		end,
-				-- 	})
+				-- Use LspAttach autocommand to only map the following keys
+				-- after the language server attaches to the current buffer
+				vim.api.nvim_create_autocmd("LspAttach", {
+					group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+					callback = function(ev)
+						-- Enable completion triggered by <c-x><c-o>
+						vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+
+						-- Buffer local mappings.
+						-- See `:help vim.lsp.*` for documentation on any of the below functions
+						local opts = { buffer = ev.buf }
+						vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+						vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+						vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+						vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+						vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
+						--vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+						vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, opts)
+						vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+						vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+
+						local client = vim.lsp.get_client_by_id(ev.data.client_id)
+					end,
+				})
 			end,
 		},
 		{
@@ -775,6 +795,11 @@ require("lazy").setup({
 					end
 					require("conform").format({ async = true, lsp_format = "fallback", range = range })
 				end, { range = true })
+
+				vim.api.nvim_create_user_command("DisableFormatOnSave", function()
+					-- TODO: there may be a better way to do this, but it does seem to work.
+					require("conform").setup({})
+				end, { desc = "Disable format on save for conform.nvim" })
 			end,
 		},
 		{
@@ -916,15 +941,42 @@ require("lazy").setup({
 				require("fzf-lua").setup({
 					grep = {
 						hidden = true,
+						rg_glob = true,
+						-- This provides an easy way to specify glob patterns when grepping
+						-- with fzf-lua. For example, to exclude node_modules, you can do:
+						--  >search for this -- !*.test*
+						--
+						-- to exclude test files from the search
+						glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
 					},
 				})
-				vim.keymap.set("n", "<leader>f", "<cmd>FzfLua files<cr>", { desc = "FzfLua find files" })
-				vim.keymap.set(
-					"n",
-					"<leader>F",
-					"<cmd>FzfLua files resume=true<cr>",
-					{ desc = "Resume previous find files" }
-				)
+				-- when using :Files, pass the file list through
+				--
+				--   https://github.com/jonhoo/proximity-sort
+				--
+				-- to prefer files closer to the current file.
+				function files_proximity(opts)
+					opts = opts or {}
+					opts.cmd = "fd --color=never --hidden --type f --type l --exclude .git"
+					local base = vim.fn.fnamemodify(vim.fn.expand("%"), ":h:.:S")
+					if base ~= "." then
+						-- if there is no current file,
+						-- proximity-sort can't do its thing
+						opts.cmd = opts.cmd .. (" | proximity-sort %s"):format(vim.fn.shellescape(vim.fn.expand("%")))
+					end
+					opts.fzf_opts = {
+						["--scheme"] = "path",
+						["--tiebreak"] = "index",
+					}
+					require("fzf-lua").files(opts)
+				end
+
+				vim.keymap.set("n", "<leader>f", function()
+					files_proximity()
+				end, { desc = "FzfLua find files" })
+				vim.keymap.set("n", "<leader>F", function()
+					files_proximity({ resume = true })
+				end, { desc = "Resume previous find files" })
 				vim.keymap.set("n", "<leader>/", "<cmd>FzfLua live_grep<cr>", { desc = "FzfLua live grep" })
 				vim.keymap.set(
 					"n",
@@ -951,6 +1003,14 @@ require("lazy").setup({
 			---@type render.md.UserConfig
 			opts = {
 				render_modes = { "n", "c", "t" },
+			},
+		},
+		{
+			"shortcuts/no-neck-pain.nvim",
+			version = "*",
+			cmd = { "NoNeckPain" },
+			keys = {
+				{ "<leader>zz", "<cmd>NoNeckPain<cr>", desc = "Toggle No Neck Pain" },
 			},
 		},
 		{
@@ -1007,9 +1067,9 @@ require("lazy").setup({
 		{
 			"github/copilot.vim",
 		},
-		{
-			"DanBradbury/copilot-chat.vim",
-		},
+		-- {
+		-- 	"DanBradbury/copilot-chat.vim",
+		-- },
 		{
 			"kawre/leetcode.nvim",
 			-- Lazy load this plugin always, unless "leetcode.nvim" is the first arg

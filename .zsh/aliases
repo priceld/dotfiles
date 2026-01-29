@@ -21,5 +21,7 @@ alias word='shuf -n1 /usr/share/dict/words'
 # - Use a wordlist like EFF's wordlist
 # - Take the output of this alias and add/remove/change random characters
 alias phrase='shuf -n5 /usr/share/dict/words | paste -sd " " - | tr "[:upper:]" "[:lower:]"'
+# TODO: use something like diceware to generate passphrases https://formulae.brew.sh/formula/diceware
 alias tw='timew'
 alias gitw='git worktree'
+alias gs='git status --short'

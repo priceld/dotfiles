@@ -8,12 +8,11 @@ local hyper = { "cmd", "shift", "alt", "ctrl" }
   this, a table can be passed which contains the app name followed by the filename
 ]]
 local apps = {
-	b = "com.brave.Browser", -- Browser
+	b = "org.mozilla.firefoxdeveloperedition", -- [B]rowser (Firefox Developer Edition) RIP Brave
 	-- TODO: com.brave.Browser.beta -- Brave Beta
 	c = { "Code", "Visual Studio Code" },
 	e = "Microsoft Outlook",
 	f = "Finder",
-	-- g = "Google Chrome",
 	m = "Spotify", -- [M]usic
 	n = "com.microsoft.teams2", -- Teams ([N]ooooooooooo)
 	o = "Obsidian", --
@@ -21,7 +20,7 @@ local apps = {
 	-- r = RESERVED
 	s = "Slack",
 	t = "Alacritty", -- [T]erminal
-	u = "com.brave.Browser.beta", -- Brave Beta (for testing [U]ltra)
+	-- u = "com.brave.Browser.beta", -- Brave Beta (for testing [U]ltra) RIP Brave
 	-- TODO:
 	-- ? = "special search mode" -- brings up a prompt to search active apps? the log the name to the console
 }
