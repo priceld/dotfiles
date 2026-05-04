@@ -184,13 +184,28 @@ vim.keymap.set("n", "k", "gk", { silent = true })
 
 -------------------------------------------------------------------------------
 --
+-- configuring diagnostics
+--
+-------------------------------------------------------------------------------
+-- Allow virtual text
+vim.diagnostic.config({
+	virtual_text = true,
+	virtual_lines = false,
+	-- Always show the source of diagnostics.
+	float = {
+		source = "always",
+	},
+})
+
+-------------------------------------------------------------------------------
+--
 -- autocommands
 --
 -------------------------------------------------------------------------------
 -- highlight yanked text
 vim.api.nvim_create_autocmd("TextYankPost", {
 	pattern = "*",
-	command = "silent! lua vim.highlight.on_yank({ timeout = 200 })",
+	command = "silent! lua vim.hl.on_yank({ timeout = 200 })",
 })
 -- jump to last edit position on opening file
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -337,10 +352,10 @@ require("lazy").setup({
 				end
 			end,
 		},
-		{
-			-- TODO: may need to make this lazy
-			"NMAC427/guess-indent.nvim",
-		},
+		-- {
+		-- 	-- TODO: may need to make this lazy
+		-- 	"NMAC427/guess-indent.nvim",
+		-- },
 		{
 			"folke/flash.nvim",
 			event = "BufReadPre",
@@ -411,83 +426,110 @@ require("lazy").setup({
 		},
 		{
 			"nvim-treesitter/nvim-treesitter",
-			event = "BufReadPre",
-			-- TODO: there are probably other commands that should be listed here:
-			cmd = { "TSUpdate" },
+			branch = "main",
+			lazy = false,
 			build = ":TSUpdate",
 			config = function()
-				require("nvim-treesitter.configs").setup({
-					-- A list of parser names, or "all" (the first five listed parsers should always be installed per nvim-treesitter)
-					ensure_installed = {
-						"c",
-						"lua",
-						"vim",
-						"vimdoc",
-						"query",
-						"javascript",
-						"typescript",
-						"rust",
-						"bash",
-						"css",
-						"git_config",
-						"git_rebase",
-						"gitattributes",
-						"gitcommit",
-						"gitignore",
-						"html",
-						"json",
-						"tsx",
-						"toml",
-						"yaml",
-						"diff",
-						"jsdoc",
-						"markdown",
+				vim.api.nvim_create_autocmd("FileType", {
+					pattern = {
+						"*.ts",
+						"*.tsx",
+						"*.js",
+						"*.jsx",
+						"*.lua",
+						"*.rust",
+						"*.html",
+						"*.css",
+						"*.json",
+						"*.toml",
+						"*.yaml",
 					},
-
-					-- Install parsers synchronously (only applied to `ensure_installed`)
-					sync_install = false,
-
-					-- Automatically install missing parsers when entering buffer
-					-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-					auto_install = true,
-
-					highlight = {
-						enable = true,
-
-						-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-						-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-						-- Using this option may slow down your editor, and you may see some duplicate highlights.
-						-- Instead of true it can also be a list of languages
-						additional_vim_regex_highlighting = false,
-					},
-
-					indent = {
-						enable = true,
-					},
-
-					incremental_selection = {
-						enable = true,
-						keymaps = {
-							init_selection = "<leader>ss",
-							node_incremental = "<leader>si",
-							scope_incremental = "<leader>sc",
-							node_decremental = "<leader>sd",
-						},
-					},
-
-					-- TODO: I wonder if I should use mini.ai for this instead
-					-- textobjects = {
-					-- 	select = {
-					-- 		enable = true,
-					-- 		lookahed = true,
-					-- 		keymaps = {
-					-- 			["ap"] = "@parameter.outer",
-					-- 		},
-					-- 	},
-					-- },
+					callback = function()
+						vim.treesitter.start()
+						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+					end,
 				})
 			end,
 		},
+		-- {
+		-- 	"nvim-treesitter/nvim-treesitter",
+		-- 	event = "BufReadPre",
+		-- 	-- TODO: there are probably other commands that should be listed here:
+		-- 	cmd = { "TSUpdate" },
+		-- 	build = ":TSUpdate",
+		-- 	config = function()
+		-- 		require("nvim-treesitter.configs").setup({
+		-- 			-- A list of parser names, or "all" (the first five listed parsers should always be installed per nvim-treesitter)
+		-- 			ensure_installed = {
+		-- 				"c",
+		-- 				"lua",
+		-- 				"vim",
+		-- 				"vimdoc",
+		-- 				"query",
+		-- 				"javascript",
+		-- 				"typescript",
+		-- 				"rust",
+		-- 				"bash",
+		-- 				"css",
+		-- 				"git_config",
+		-- 				"git_rebase",
+		-- 				"gitattributes",
+		-- 				"gitcommit",
+		-- 				"gitignore",
+		-- 				"html",
+		-- 				"json",
+		-- 				"tsx",
+		-- 				"toml",
+		-- 				"yaml",
+		-- 				"diff",
+		-- 				"jsdoc",
+		-- 				"markdown",
+		-- 			},
+		--
+		-- 			-- Install parsers synchronously (only applied to `ensure_installed`)
+		-- 			sync_install = false,
+		--
+		-- 			-- Automatically install missing parsers when entering buffer
+		-- 			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+		-- 			auto_install = true,
+		--
+		-- 			highlight = {
+		-- 				enable = true,
+		--
+		-- 				-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+		-- 				-- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+		-- 				-- Using this option may slow down your editor, and you may see some duplicate highlights.
+		-- 				-- Instead of true it can also be a list of languages
+		-- 				additional_vim_regex_highlighting = false,
+		-- 			},
+		--
+		-- 			indent = {
+		-- 				enable = true,
+		-- 			},
+		--
+		-- 			incremental_selection = {
+		-- 				enable = true,
+		-- 				keymaps = {
+		-- 					init_selection = "<leader>ss",
+		-- 					node_incremental = "<leader>si",
+		-- 					scope_incremental = "<leader>sc",
+		-- 					node_decremental = "<leader>sd",
+		-- 				},
+		-- 			},
+		--
+		-- 			-- TODO: I wonder if I should use mini.ai for this instead
+		-- 			-- textobjects = {
+		-- 			-- 	select = {
+		-- 			-- 		enable = true,
+		-- 			-- 		lookahed = true,
+		-- 			-- 		keymaps = {
+		-- 			-- 			["ap"] = "@parameter.outer",
+		-- 			-- 		},
+		-- 			-- 	},
+		-- 			-- },
+		-- 		})
+		-- 	end,
+		-- },
 		{
 			"nvim-treesitter/nvim-treesitter-context",
 			event = "BufReadPre",
@@ -526,81 +568,19 @@ require("lazy").setup({
 				vim.lsp.enable({
 					"ts_ls",
 					"clangd",
+					-- ESLint should only be used when an ESLint config file is found in
+					-- the project. However, as of 2026-04-10, it will still respect
+					-- ESLint config that is defined in package.json files.
 					"eslint",
 					"rust_analyzer",
 					-- "bash_lsp",
 					"lua_ls",
 				})
 
-				-- 	-- Setup language servers.
-				-- 	local lspconfig = require("lspconfig")
-				-- 	local capabilities = require("blink.cmp").get_lsp_capabilities()
-				--
-				-- 	-- Typescript
-				-- 	lspconfig.ts_ls.setup({
-				-- 		root_dir = lspconfig.util.root_pattern("nx.json", "package.json"),
-				-- 		capabilities = capabilities,
-				-- 	})
-				--
-				-- 	-- C/C++
-				-- 	lspconfig.clangd.setup({ capabilities = capabilities })
-				--
-				-- 	lspconfig.eslint.setup({ capabilities = capabilities })
-				--
-				-- 	-- TODO: this seems to need additional setup and I don't want to mess
-				-- 	-- with installing another version of java
-				-- 	-- lspconfig.jdtls.setup({ capabilities = capabilities })
-				--
-				-- 	-- Rust
-				-- 	lspconfig.rust_analyzer.setup({
-				-- 		capabilities = capabilities,
-				-- 		-- Server-specific settings. See `:help lspconfig-setup`
-				-- 		settings = {
-				-- 			["rust-analyzer"] = {
-				-- 				cargo = {
-				-- 					allFeatures = true,
-				-- 				},
-				-- 				imports = {
-				-- 					group = {
-				-- 						enable = false,
-				-- 					},
-				-- 				},
-				-- 				completion = {
-				-- 					postfix = {
-				-- 						enable = false,
-				-- 					},
-				-- 				},
-				-- 			},
-				-- 		},
-				-- 	})
-				--
-				-- 	-- Bash LSP
-				-- 	local configs = require("lspconfig.configs")
-				-- 	if not configs.bash_lsp and vim.fn.executable("bash-language-server") == 1 then
-				-- 		configs.bash_lsp = {
-				-- 			default_config = {
-				-- 				cmd = { "bash-language-server", "start" },
-				-- 				filetypes = { "sh" },
-				-- 				root_dir = require("lspconfig").util.find_git_ancestor,
-				-- 				init_options = {
-				-- 					settings = {
-				-- 						args = {},
-				-- 					},
-				-- 				},
-				-- 			},
-				-- 		}
-				-- 	end
-				-- 	if configs.bash_lsp then
-				-- 		lspconfig.bash_lsp.setup({
-				-- 			capabilities = capabilities,
-				-- 		})
-				-- 	end
-				--
 				-- Global mappings.
 				-- See `:help vim.diagnostic.*` for documentation on any of the below functions
-				-- vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float)
-				vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-				vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+				-- vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+				-- vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 				vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
 				--
 				-- Use LspAttach autocommand to only map the following keys
@@ -630,6 +610,18 @@ require("lazy").setup({
 			end,
 		},
 		{
+			-- this should auto-configure the Lua LSP server to understand the vim API.
+			"folke/lazydev.nvim",
+			ft = "lua", -- only load on lua files
+			opts = {
+				library = {
+					-- See the configuration section for more details
+					-- Load luvit types when the `vim.uv` word is found
+					{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
+				},
+			},
+		},
+		{
 			"saghen/blink.cmp",
 			event = "VeryLazy",
 			version = "v1.*",
@@ -649,10 +641,32 @@ require("lazy").setup({
 					nerd_font_variant = "mono",
 				},
 
+				completion = {
+					menu = {
+						draw = {
+							columns = {
+								{ "label", "label_description", gap = 1 },
+								{ "kind" },
+								{ "source_name" },
+							},
+						},
+					},
+				},
+
 				-- default list of enabled providers defined so that you can extend it
 				-- elsewhere in your config, without redefining it, due to `opts_extend`
+				-- Adding lazydev as a provider (as mentioned in the install docs for
+				-- lazydev).
 				sources = {
-					default = { "lsp", "path", "buffer" },
+					default = { "lazydev", "lsp", "path", "buffer" },
+					providers = {
+						lazydev = {
+							name = "LazyDev",
+							module = "lazydev.integrations.blink",
+							-- make lazydev completions top priority (see `:h blink.cmp`)
+							score_offset = 100,
+						},
+					},
 				},
 
 				-- experimental signature help support
@@ -1066,6 +1080,24 @@ require("lazy").setup({
 		},
 		{
 			"github/copilot.vim",
+		},
+		{
+			"codethread/qmk.nvim",
+			cmd = { "QMKFormat" },
+			config = function()
+				---@type qmk.UserConfig
+				local conf = {
+					-- This is for the corne keyboard layout
+					name = "LAYOUT_split_3x6_3",
+					layout = {
+						"x x x x x x _ _ _ x x x x x x",
+						"x x x x x x _ _ _ x x x x x x",
+						"x x x x x x _ _ _ x x x x x x",
+						"_ _ _ _ x x x _ x x x _ _ _ _",
+					},
+				}
+				require("qmk").setup(conf)
+			end,
 		},
 		-- {
 		-- 	"DanBradbury/copilot-chat.vim",

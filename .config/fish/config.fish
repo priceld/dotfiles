@@ -26,3 +26,8 @@ end
 
 # Not really sure why I need to do this myself as this should be the default
 set -U fish_color_param normal
+
+# Make a really simple prompt to make reading the output easier.
+function fish_prompt
+    string join '' -- (set_color green) (prompt_pwd) (set_color normal) '>'
+end
