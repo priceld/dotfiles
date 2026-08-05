@@ -2,3 +2,6 @@
 # Ignore local nvim configs
 .nvim.lua
 .git
+.omo
+
+**/.claude/settings.local.json

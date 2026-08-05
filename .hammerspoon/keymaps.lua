@@ -20,7 +20,7 @@ local apps = {
 	-- r = RESERVED
 	s = "Slack",
 	t = "Alacritty", -- [T]erminal
-	-- u = "com.brave.Browser.beta", -- Brave Beta (for testing [U]ltra) RIP Brave
+	u = "Chrome", -- chrome (for testing [U]ltra)
 	-- TODO:
 	-- ? = "special search mode" -- brings up a prompt to search active apps? the log the name to the console
 }

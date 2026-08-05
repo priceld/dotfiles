@@ -307,6 +307,12 @@ require("lazy").setup({
 				)
 			end,
 		},
+		-- {
+		-- 	"vague-theme/vague.nvim",
+		-- 	config = function()
+		-- 		vim.cmd.colorscheme("vague")
+		-- 	end,
+		-- },
 		-- nice bar at the bottom
 		{
 			"itchyny/lightline.vim",
@@ -552,7 +558,6 @@ require("lazy").setup({
 				})
 
 				vim.lsp.config("ts_ls", {
-					-- root_dir = require("lspconfig.util").root_pattern("nx.json", "package.json"),
 					root_markers = { "nx.json", "package.json", ".git" },
 				})
 
@@ -582,6 +587,7 @@ require("lazy").setup({
 				-- vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 				-- vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
 				vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist)
+				vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic float" })
 				--
 				-- Use LspAttach autocommand to only map the following keys
 				-- after the language server attaches to the current buffer
@@ -650,6 +656,13 @@ require("lazy").setup({
 								{ "source_name" },
 							},
 						},
+					},
+					-- This will automatically show the documentation window.
+					-- Otherwise this can be triggered manually with C-space
+					-- ....which I should re-map since C-space is my tmux leader key
+					documentation = {
+						auto_show = true,
+						auto_show_delay_ms = 500,
 					},
 				},
 
@@ -1070,6 +1083,11 @@ require("lazy").setup({
 						end,
 					},
 					skip_confirm_for_simple_edits = true,
+					keymaps = {
+						-- Remove these keymaps as they conflict with tmux-navigator
+						["<C-h>"] = false,
+						["<C-l>"] = false,
+					},
 				})
 
 				-- vim.keymap.set("n", "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil explorer" })
@@ -1078,9 +1096,75 @@ require("lazy").setup({
 				{ "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil explorer" } },
 			},
 		},
-		{
-			"github/copilot.vim",
-		},
+		-- {
+		-- 	"github/copilot.vim",
+		-- },
+		-- {
+		-- 	"nickjvandyke/opencode.nvim",
+		-- 	version = "*", -- Latest stable release
+		-- 	-- dependencies = {
+		-- 	-- 	{
+		-- 	-- 		-- `snacks.nvim` integration is recommended, but optional
+		-- 	-- 		---@module "snacks" <- Loads `snacks.nvim` types for configuration intellisense
+		-- 	-- 		"folke/snacks.nvim",
+		-- 	-- 		optional = true,
+		-- 	-- 		opts = {
+		-- 	-- 			input = {}, -- Enhances `ask()`
+		-- 	-- 			picker = { -- Enhances `select()`
+		-- 	-- 				actions = {
+		-- 	-- 					opencode_send = function(...)
+		-- 	-- 						return require("opencode").snacks_picker_send(...)
+		-- 	-- 					end,
+		-- 	-- 				},
+		-- 	-- 				win = {
+		-- 	-- 					input = {
+		-- 	-- 						keys = {
+		-- 	-- 							["<a-a>"] = { "opencode_send", mode = { "n", "i" } },
+		-- 	-- 						},
+		-- 	-- 					},
+		-- 	-- 				},
+		-- 	-- 			},
+		-- 	-- 		},
+		-- 	-- 	},
+		-- 	-- },
+		-- 	config = function()
+		-- 		---@type opencode.Opts
+		-- 		vim.g.opencode_opts = {
+		-- 			-- Your configuration, if any; goto definition on the type or field for details
+		-- 		}
+		--
+		-- 		vim.o.autoread = true -- Required for `opts.events.reload`
+		--
+		-- 		-- Recommended/example keymaps
+		-- 		vim.keymap.set({ "n", "x" }, "<C-a>", function()
+		-- 			require("opencode").ask("@this: ", { submit = true })
+		-- 		end, { desc = "Ask opencode…" })
+		-- 		vim.keymap.set({ "n", "x" }, "<C-x>", function()
+		-- 			require("opencode").select()
+		-- 		end, { desc = "Select opencode…" })
+		-- 		vim.keymap.set({ "n", "t" }, "<C-.>", function()
+		-- 			require("opencode").toggle()
+		-- 		end, { desc = "Toggle opencode" })
+		--
+		-- 		vim.keymap.set({ "n", "x" }, "go", function()
+		-- 			return require("opencode").operator("@this ")
+		-- 		end, { desc = "Add range to opencode", expr = true })
+		-- 		vim.keymap.set("n", "goo", function()
+		-- 			return require("opencode").operator("@this ") .. "_"
+		-- 		end, { desc = "Add line to opencode", expr = true })
+		--
+		-- 		vim.keymap.set("n", "<S-C-u>", function()
+		-- 			require("opencode").command("session.half.page.up")
+		-- 		end, { desc = "Scroll opencode up" })
+		-- 		vim.keymap.set("n", "<S-C-d>", function()
+		-- 			require("opencode").command("session.half.page.down")
+		-- 		end, { desc = "Scroll opencode down" })
+		--
+		-- 		-- You may want these if you use the opinionated `<C-a>` and `<C-x>` keymaps above — otherwise consider `<leader>o…` (and remove terminal mode from the `toggle` keymap)
+		-- 		vim.keymap.set("n", "+", "<C-a>", { desc = "Increment under cursor", noremap = true })
+		-- 		vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement under cursor", noremap = true })
+		-- 	end,
+		-- },
 		{
 			"codethread/qmk.nvim",
 			cmd = { "QMKFormat" },

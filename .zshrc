@@ -163,6 +163,8 @@ setopt SHARE_HISTORY # Share history between all sessions
 export GOPATH="$HOME/go"
 export GOBIN="$GOPATH/bin"
 export PATH="$GOBIN:$PATH"
+# needed for claude
+export PATH="$HOME/.local/bin:$PATH"
 
 source $HOME/.zsh/aliases
 source $HOME/.zsh/functions
