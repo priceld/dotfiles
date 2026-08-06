@@ -50,7 +50,15 @@ else
   read rows columns < <(stty size)
   # Get an ascii banner to use as the header for some visual interest
   banner=$(get_banner)
-  # --tmux center - display fzf in a tmux popup in the center of the screen
+  # NOTE: --tmux popup disabled (fzf 0.74+ on tmux 3.7+ forces a native,
+  # always-on border for popups/floating panes - no way to suppress it).
+  # Instead we render inline and use --margin to inset a centered box,
+  # which mimics the old floating-popup look without tmux's popup machinery
+  # (and therefore without the forced border).
+  margin_top_bottom=12
+  margin_left_right=20
+  inner_columns=$(( columns * (100 - 2 * margin_left_right) / 100 ))
+  # --margin - inset the fzf window to leave blank space around it, centering it
   # --border none - do not display a border around the fzf window
   # --no-scrollbar - do not display the fzf scrollbar
   # --highlight-line - highlight the currently selected line
@@ -61,13 +69,13 @@ else
   # --delimiter / - Split the "fields" fzf searches by / (path separator)
   # -n -1 - only search the last field (i.e. the directory name not the full path)
   selected=$(printf "%s\n" "${projects[@]}" | fzf \
-    --tmux center \
+    --margin ${margin_top_bottom}%,${margin_left_right}% \
     --border none \
     --no-scrollbar \
     --highlight-line \
     --layout reverse \
     --color "header:grey,fg:grey,current-fg:-1,current-bg:-1,gutter:-1" \
-    --header "$(center_horizontal "$banner" $(($columns / 2)))" \
+    --header "$(center_horizontal "$banner" $inner_columns)" \
     --header-first \
     --delimiter / -n -1)
 fi
