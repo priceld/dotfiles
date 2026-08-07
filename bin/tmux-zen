@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+# Toggle a centered "zen" view of the current pane.
+#
+# On:  every other pane in the window is parked (not killed) in a hidden
+#      holding window so its process keeps running untouched, then the
+#      remaining pane is flanked by two blank padding panes so it sits in
+#      a fixed-width column in the middle of the screen.
+# Off: the padding panes are removed, the parked panes are rejoined, and
+#      the window's original layout is reapplied so every pane ends up
+#      exactly where and how big it was.
+#
+# Bound to a key in .tmux.conf; safe to invoke directly too.
+#
+# Width of the centered column defaults to 120 columns; override with
+# TMUX_ZEN_WIDTH.
+
+zen_width=${TMUX_ZEN_WIDTH:-120}
+state_dir="${TMPDIR:-/tmp}/tmux-zen"
+mkdir -p "$state_dir"
+
+window_id=$(tmux display-message -p '#{window_id}')
+state_file="$state_dir/$window_id"
+
+is_pad() {
+  [[ "$(tmux show-options -p -v -t "$1" @zen_pad 2> /dev/null)" == "1" ]]
+}
+
+enter_zen() {
+  local main_pane layout pane_id
+  local original_order=() siblings=() hold_window=""
+
+  main_pane=$(tmux display-message -p '#{pane_id}')
+  layout=$(tmux display-message -p '#{window_layout}')
+
+  while read -r pane_id; do
+    original_order+=("$pane_id")
+    [[ "$pane_id" != "$main_pane" ]] && siblings+=("$pane_id")
+  done < <(tmux list-panes -t "$window_id" -F '#{pane_id}')
+
+  # Park every sibling pane in a hidden window (break-pane keeps the
+  # process running, it just relocates where it's displayed). Order
+  # doesn't matter here - original position is restored later by identity,
+  # not by the order panes get joined back in.
+  if [[ "${#siblings[@]}" -gt 0 ]]; then
+    hold_window=$(tmux break-pane -d -P -F '#{window_id}' -s "${siblings[0]}")
+    for pane_id in "${siblings[@]:1}"; do
+      tmux join-pane -d -s "$pane_id" -t "$hold_window"
+    done
+  fi
+
+  {
+    echo "layout $layout"
+    echo "main $main_pane"
+    for pane_id in "${original_order[@]}"; do echo "order $pane_id"; done
+    [[ -n "$hold_window" ]] && echo "hold $hold_window"
+  } > "$state_file"
+
+  local pad
+  pad=$(( ($(tmux display-message -p '#{window_width}') - zen_width) / 2 ))
+  if [[ "$pad" -gt 0 ]]; then
+    local left right
+    left=$(tmux split-window -t "$main_pane" -h -b -l "$pad" -d -P -F '#{pane_id}' 'while :; do sleep 3600; done')
+    tmux set-option -p -t "$left" @zen_pad 1
+    right=$(tmux split-window -t "$main_pane" -h -l "$pad" -d -P -F '#{pane_id}' 'while :; do sleep 3600; done')
+    tmux set-option -p -t "$right" @zen_pad 1
+  fi
+}
+
+exit_zen() {
+  local kind value pane_id i j tmp
+  local layout="" main_pane="" hold_window="" desired=() current=()
+
+  while IFS=' ' read -r kind value; do
+    case "$kind" in
+      layout) layout=$value ;;
+      main) main_pane=$value ;;
+      order) desired+=("$value") ;;
+      hold) hold_window=$value ;;
+    esac
+  done < "$state_file"
+
+  # Padding panes are always plain children of main_pane at this point;
+  # find and remove them, leaving main_pane alone in the window.
+  while read -r pane_id; do
+    is_pad "$pane_id" && tmux kill-pane -t "$pane_id"
+  done < <(tmux list-panes -t "$window_id" -F '#{pane_id}')
+
+  # Bring every parked sibling back into the window. Join order/position
+  # doesn't matter - correct placement is restored below via swap-pane,
+  # since join-pane's resulting pane order isn't predictable enough to
+  # rely on directly.
+  for pane_id in "${desired[@]}"; do
+    [[ "$pane_id" != "$main_pane" ]] && tmux join-pane -d -s "$pane_id" -t "$main_pane"
+  done
+
+  [[ -n "$hold_window" ]] && tmux kill-window -t "$hold_window" 2> /dev/null
+
+  # Apply the original size/position tree. This assigns saved boxes to
+  # whatever pane order the window currently has, which may not yet put
+  # each pane back in its own original box.
+  tmux select-layout -t "$window_id" "$layout"
+
+  # Fix identity: sort the current pane order into the desired (original)
+  # order using swap-pane, which exchanges two panes' position/size by id
+  # rather than by index, so it's immune to join-pane's ordering quirks.
+  while read -r pane_id; do current+=("$pane_id"); done < <(tmux list-panes -t "$window_id" -F '#{pane_id}')
+  for (( i = 0; i < ${#desired[@]}; i++ )); do
+    [[ "${current[$i]}" == "${desired[$i]}" ]] && continue
+    for (( j = i + 1; j < ${#current[@]}; j++ )); do
+      if [[ "${current[$j]}" == "${desired[$i]}" ]]; then
+        tmux swap-pane -d -s "${current[$i]}" -t "${current[$j]}"
+        tmp="${current[$i]}"; current[$i]="${current[$j]}"; current[$j]="$tmp"
+        break
+      fi
+    done
+  done
+
+  tmux select-pane -t "$main_pane"
+  rm -f "$state_file"
+}
+
+if [[ -f "$state_file" ]]; then
+  exit_zen
+else
+  enter_zen
+fi
