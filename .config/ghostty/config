@@ -1,2 +1,7 @@
 # Theme
-theme = Everforest Dark - Hard
+#theme = Everforest Dark - Hard
+# Test out the quick terminal feature
+keybind = global:shift+ctrl+alt+space=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 50%,50%
+quick-terminal-animation-duration = 0
