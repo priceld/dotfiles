@@ -7,3 +7,6 @@
 [submodule ".zsh/zsh-async"]
 	path = .zsh/zsh-async
 	url = https://github.com/mafredri/zsh-async.git
+[submodule ".zsh/fzf-tab"]
+	path = .zsh/fzf-tab
+	url = https://github.com/Aloxaf/fzf-tab

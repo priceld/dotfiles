@@ -1,0 +1,236 @@
+#!/usr/bin/env bash
+#
+# jj-lfs-sync — keep Git LFS content usable inside a non-colocated jj
+# workspace (e.g. one created via `jj git init --git-repo=<bare>` or
+# `jj workspace add` off a bare repo), without letting jj accidentally
+# commit smudged LFS binaries.
+#
+# Background: jj has no clean/smudge filter support, so it can't run Git
+# LFS's filters itself. This script uses `jj sparse` to exclude LFS-tracked
+# paths from jj's view entirely, then uses plain `git`/`git lfs` (pointed at
+# the bare repo via --git-dir/--work-tree) to manage the real content for
+# just those paths.
+#
+# Requirements: jj, git, git-lfs all on PATH.
+#
+# Usage:
+#   jj-lfs-sync init <path-to-bare-repo>
+#   jj-lfs-sync sync [--no-pull]
+#   jj-lfs-sync status
+#
+# Run from the root of your jj workspace (where .jj/ lives).
+
+set -euo pipefail
+
+CONF_DIR=".jj/lfs-sync"
+CONF_FILE="$CONF_DIR/config"
+SCRIPT_NAME="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Usage:
+  $SCRIPT_NAME init <path-to-bare-repo>
+      One-time setup. Records the bare repo location for this workspace.
+
+  $SCRIPT_NAME sync [--no-pull]
+      1. Finds LFS-tracked paths at the current jj commit (@).
+      2. Excludes them from jj's sparse patterns (jj sparse set --exclude).
+      3. Fetches + smudges the real content into the working copy,
+         unless --no-pull is given (then it only fixes sparse patterns).
+
+  $SCRIPT_NAME status
+      Shows the LFS-tracked paths at @, and jj's current sparse patterns,
+      so you can see whether they're in sync.
+EOF
+}
+
+require_jj_workspace() {
+  if [[ ! -d .jj ]]; then
+    echo "Error: no .jj directory here. Run this from your jj workspace root." >&2
+    exit 1
+  fi
+}
+
+require_tools() {
+  for t in jj git git-lfs; do
+    if ! command -v "$t" >/dev/null 2>&1; then
+      echo "Error: '$t' not found on PATH." >&2
+      exit 1
+    fi
+  done
+}
+
+load_conf() {
+  if [[ ! -f "$CONF_FILE" ]]; then
+    echo "Error: no $CONF_FILE found. Run: $SCRIPT_NAME init <path-to-bare-repo>" >&2
+    exit 1
+  fi
+  # shellcheck source=/dev/null
+  source "$CONF_FILE"
+  : "${BARE_REPO:?BARE_REPO not set in $CONF_FILE}"
+  if [[ ! -d "$BARE_REPO" ]]; then
+    echo "Error: BARE_REPO ($BARE_REPO) does not exist or isn't a directory." >&2
+    exit 1
+  fi
+}
+
+cmd_init() {
+  local bare="${1:-}"
+  if [[ -z "$bare" ]]; then
+    echo "Usage: $SCRIPT_NAME init <path-to-bare-repo>" >&2
+    exit 1
+  fi
+  bare="$(cd "$bare" && pwd)"
+
+  mkdir -p "$CONF_DIR"
+  cat > "$CONF_FILE" <<EOF
+# Config for jj-lfs-sync — safe to edit by hand.
+BARE_REPO="$bare"
+EOF
+  echo "Wrote $CONF_FILE"
+  echo "  BARE_REPO=$bare"
+  echo
+  echo "(Stored inside .jj/, so it's machine-local config, never part of your"
+  echo "jj-tracked working copy or commit history — no sparse exclusion needed.)"
+}
+
+git_bare() {
+  git --git-dir="$BARE_REPO" "$@"
+}
+
+git_bare_wt() {
+  git --git-dir="$BARE_REPO" --work-tree="$(pwd)" "$@"
+}
+
+current_commit() {
+  jj log --no-graph --ignore-working-copy -r @ -T 'commit_id ++ "\n"' 2>/dev/null \
+    || jj log --no-graph -r @ -T 'commit_id ++ "\n"'
+}
+
+lfs_paths_at() {
+  local rev="$1"
+  # -n/--name-only: just paths, no OIDs. Works straight off the git tree
+  # object at that commit — no work-tree needed for this step.
+  git_bare lfs ls-files -n "$rev" 2>/dev/null || true
+}
+
+supports_sparse_exclude() {
+  jj sparse set --help 2>/dev/null | grep -q -- '--exclude'
+}
+
+cmd_sync() {
+  local do_pull=1
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --no-pull) do_pull=0 ;;
+      *) echo "Unknown option: $1" >&2; exit 1 ;;
+    esac
+    shift
+  done
+
+  local rev
+  rev="$(current_commit)"
+  echo "Current jj commit (@): $rev"
+
+  local paths
+  paths="$(lfs_paths_at "$rev")"
+
+  if [[ -z "$paths" ]]; then
+    echo "No LFS-tracked paths at this commit. Nothing to do."
+    return 0
+  fi
+
+  echo
+  echo "LFS-tracked paths at this commit:"
+  echo "$paths" | sed 's/^/  /'
+  echo
+
+  if supports_sparse_exclude; then
+    echo "Updating jj sparse patterns to exclude these paths..."
+    local args=()
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      args+=(--exclude "$p")
+    done <<< "$paths"
+    jj sparse set "${args[@]}"
+    echo "jj will no longer snapshot/commit these paths."
+  else
+    cat >&2 <<'EOF'
+WARNING: your jj version's `jj sparse set` doesn't support --exclude.
+Without it, this script can't safely stop jj from tracking these paths,
+which means smudged LFS content below could get swept into a jj commit.
+Consider upgrading jj, or handle sparse patterns manually before
+proceeding (see `jj sparse set --help`).
+EOF
+    read -r -p "Continue anyway and skip the sparse step? [y/N] " ans
+    [[ "$ans" =~ ^[Yy]$ ]] || exit 1
+  fi
+
+  if [[ "$do_pull" -eq 1 ]]; then
+    echo
+    echo "Fetching LFS objects for this commit..."
+    git_bare lfs fetch "$rev"
+
+    echo "Smudging real content into the working copy..."
+    local file_args=()
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      file_args+=("$p")
+    done <<< "$paths"
+    git_bare_wt lfs checkout -- "${file_args[@]}"
+  fi
+
+  echo
+  echo "Done."
+}
+
+cmd_status() {
+  local rev
+  rev="$(current_commit)"
+  echo "jj commit (@): $rev"
+  echo
+  echo "LFS-tracked paths at this commit:"
+  local paths
+  paths="$(lfs_paths_at "$rev")"
+  if [[ -z "$paths" ]]; then
+    echo "  (none)"
+  else
+    echo "$paths" | sed 's/^/  /'
+  fi
+  echo
+  echo "Current jj sparse patterns:"
+  jj sparse list | sed 's/^/  /'
+}
+
+main() {
+  require_tools
+  require_jj_workspace
+
+  local cmd="${1:-}"
+  case "$cmd" in
+    init)
+      shift
+      cmd_init "$@"
+      ;;
+    sync)
+      shift
+      load_conf
+      cmd_sync "$@"
+      ;;
+    status)
+      shift
+      load_conf
+      cmd_status "$@"
+      ;;
+    -h|--help|"")
+      usage
+      ;;
+    *)
+      echo "Unknown command: $cmd" >&2
+      usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
