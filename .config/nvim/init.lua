@@ -835,6 +835,9 @@ require("lazy").setup({
 			-- event = "VeryLazy",
 			-- Only load when the file type is set?
 			event = "BufReadPre",
+			cmd = {
+				"Gitsigns",
+			},
 			config = function()
 				require("gitsigns").setup({
 					on_attach = function(bufnr)
@@ -1096,6 +1099,7 @@ require("lazy").setup({
 				{ "<leader>e", "<cmd>Oil<cr>", { desc = "Open Oil explorer" } },
 			},
 		},
+		{ "malewicz1337/oil-git.nvim", dependencies = { "stevearc/oil.nvim" } },
 		-- {
 		-- 	"github/copilot.vim",
 		-- },
