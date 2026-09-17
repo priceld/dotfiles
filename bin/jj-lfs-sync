@@ -15,8 +15,9 @@
 #
 # Usage:
 #   jj-lfs-sync init <path-to-bare-repo>
-#   jj-lfs-sync sync [--no-pull]
+#   jj-lfs-sync sync [--no-pull] [--force]
 #   jj-lfs-sync status
+#   jj-lfs-sync debug <path>
 #
 # Run from the root of your jj workspace (where .jj/ lives).
 
@@ -29,18 +30,27 @@ SCRIPT_NAME="$(basename "$0")"
 usage() {
   cat <<EOF
 Usage:
-  $SCRIPT_NAME init <path-to-bare-repo>
-      One-time setup. Records the bare repo location for this workspace.
+  $SCRIPT_NAME init <path-to-bare-repo> [remote-name]
+      One-time setup. Records the bare repo location and LFS remote name
+      (default: origin) for this workspace.
 
-  $SCRIPT_NAME sync [--no-pull]
+  $SCRIPT_NAME sync [--no-pull] [--force] [-v|--verbose]
       1. Finds LFS-tracked paths at the current jj commit (@).
       2. Excludes them from jj's sparse patterns (jj sparse set --exclude).
       3. Fetches + smudges the real content into the working copy,
          unless --no-pull is given (then it only fixes sparse patterns).
+      Skips work automatically when nothing relevant has changed since the
+      last sync at this commit; pass --force to redo anyway. By default
+      only prints a count of LFS-tracked paths; pass -v to list them all.
 
   $SCRIPT_NAME status
       Shows the LFS-tracked paths at @, and jj's current sparse patterns,
       so you can see whether they're in sync.
+
+  $SCRIPT_NAME debug <path>
+      Traces a single path through every stage (jj tracking, LFS detection,
+      sparse patterns, on-disk state, .gitattributes, local object
+      availability) to pinpoint exactly where it's falling through.
 EOF
 }
 
@@ -68,34 +78,50 @@ load_conf() {
   # shellcheck source=/dev/null
   source "$CONF_FILE"
   : "${BARE_REPO:?BARE_REPO not set in $CONF_FILE}"
+  LFS_REMOTE="${LFS_REMOTE:-origin}"
   if [[ ! -d "$BARE_REPO" ]]; then
     echo "Error: BARE_REPO ($BARE_REPO) does not exist or isn't a directory." >&2
+    exit 1
+  fi
+  validate_bare_repo "$BARE_REPO"
+}
+
+# Confirms `--git-dir=<path>` actually points at a git repository. A path
+# that's one level off (e.g. the bare repo's parent folder) will fail here
+# with a clear message, instead of surfacing later as git-lfs's generic
+# "Not in a Git repository." during sync.
+validate_bare_repo() {
+  local bare="$1"
+  if ! git --git-dir="$bare" rev-parse --is-bare-repository >/dev/null 2>&1; then
+    echo "Error: '$bare' doesn't look like a git directory." >&2
+    echo "It should directly contain HEAD, objects/, refs/, and config —" >&2
+    echo "not be a parent folder that merely holds those." >&2
     exit 1
   fi
 }
 
 cmd_init() {
   local bare="${1:-}"
+  local remote="${2:-origin}"
   if [[ -z "$bare" ]]; then
-    echo "Usage: $SCRIPT_NAME init <path-to-bare-repo>" >&2
+    echo "Usage: $SCRIPT_NAME init <path-to-bare-repo> [remote-name]" >&2
     exit 1
   fi
   bare="$(cd "$bare" && pwd)"
+  validate_bare_repo "$bare"
 
   mkdir -p "$CONF_DIR"
   cat > "$CONF_FILE" <<EOF
 # Config for jj-lfs-sync — safe to edit by hand.
 BARE_REPO="$bare"
+LFS_REMOTE="$remote"
 EOF
   echo "Wrote $CONF_FILE"
   echo "  BARE_REPO=$bare"
+  echo "  LFS_REMOTE=$remote"
   echo
   echo "(Stored inside .jj/, so it's machine-local config, never part of your"
   echo "jj-tracked working copy or commit history — no sparse exclusion needed.)"
-}
-
-git_bare() {
-  git --git-dir="$BARE_REPO" "$@"
 }
 
 git_bare_wt() {
@@ -103,26 +129,110 @@ git_bare_wt() {
 }
 
 current_commit() {
-  jj log --no-graph --ignore-working-copy -r @ -T 'commit_id ++ "\n"' 2>/dev/null \
-    || jj log --no-graph -r @ -T 'commit_id ++ "\n"'
+  jj log --no-graph -r @ -T 'commit_id ++ "\n"'
 }
 
 lfs_paths_at() {
   local rev="$1"
-  # -n/--name-only: just paths, no OIDs. Works straight off the git tree
-  # object at that commit — no work-tree needed for this step.
-  git_bare lfs ls-files -n "$rev" 2>/dev/null || true
+  # -n/--name-only: just paths, no OIDs. Note: even though this only reads
+  # the git tree object and never touches the working tree, git-lfs still
+  # bootstraps by resolving a working-copy root internally, which fails
+  # with "Not in a Git repository." against a bare repo unless --work-tree
+  # is also given — hence git_bare_wt rather than a --git-dir-only call.
+  #
+  # Deliberately NOT swallowing stderr here: a real command failure (lock
+  # contention, transient error, etc.) must not silently look identical to
+  # "this file isn't LFS-tracked" — that false-negative is exactly what
+  # makes this step misleading to debug.
+  local output
+  if ! output="$(git_bare_wt lfs ls-files -n "$rev")"; then
+    echo "Error: 'git lfs ls-files' failed for commit $rev — see above." >&2
+    exit 1
+  fi
+  echo "$output"
+}
+
+# Like lfs_paths_at, but returns "<oid> <marker> <path>" per line in one
+# call (git-lfs's -l/--long flag) instead of just the path. Used by
+# cmd_sync so smudging never needs a separate subprocess per file to look
+# up each pointer's oid.
+lfs_info_at() {
+  local rev="$1"
+  local output
+  if ! output="$(git_bare_wt lfs ls-files -l "$rev")"; then
+    echo "Error: 'git lfs ls-files -l' failed for commit $rev — see above." >&2
+    exit 1
+  fi
+  echo "$output"
 }
 
 supports_sparse_exclude() {
   jj sparse set --help 2>/dev/null | grep -q -- '--exclude'
 }
 
+# Resolves git-lfs's actual local object-store directory rather than
+# assuming the conventional $GIT_DIR/lfs/objects layout, since it's
+# configurable via lfs.storage.
+lfs_object_dir() {
+  git_bare_wt lfs env 2>/dev/null | sed -n 's/^LocalMediaDir=//p'
+}
+
+# Writes real content for each given LFS-tracked path, bypassing
+# `git lfs checkout` entirely. checkout only scans "the current ref" (i.e.
+# the backing repo's single, shared HEAD) and has no way to target an
+# arbitrary commit — so in a bare-repo-with-many-jj-workspaces setup, it
+# silently skips any path that isn't LFS-tracked at HEAD, even when named
+# explicitly as an argument, even after populating the index via
+# read-tree.
+#
+# Takes pre-fetched `lfs_info` — lines of "<oid> <marker> <path>" from a
+# single `git lfs ls-files -l` call (see lfs_info_at) — rather than a bare
+# path list, so this never spawns a subprocess per file. Earlier versions
+# ran `git show <rev>:<path>` once per path just to read the pointer's oid,
+# which is what actually made large syncs slow; ls-files -l already gives
+# every oid in one call.
+manual_smudge() {
+  local lfs_info="$1"
+  local objdir
+  objdir="$(lfs_object_dir)"
+  if [[ -z "$objdir" ]]; then
+    echo "Error: couldn't determine git-lfs's local object storage directory" >&2
+    exit 1
+  fi
+
+  local wrote=0 skipped=0
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+
+    local oid path
+    oid="$(cut -d' ' -f1 <<< "$line")"
+    path="$(cut -d' ' -f3- <<< "$line")"
+
+    local objpath="$objdir/${oid:0:2}/${oid:2:2}/${oid}"
+    if [[ ! -f "$objpath" ]]; then
+      echo "  WARNING: object for '$path' not found locally (fetch may not have" >&2
+      echo "           retrieved it — check remote/auth/pruned-object issues) — skipping" >&2
+      skipped=$((skipped + 1))
+      continue
+    fi
+
+    mkdir -p "$(dirname -- "$path")"
+    cp -- "$objpath" "$path"
+    wrote=$((wrote + 1))
+  done <<< "$lfs_info"
+
+  echo "  wrote $wrote file(s), skipped $skipped"
+}
+
 cmd_sync() {
   local do_pull=1
+  local force=0
+  local verbose=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --no-pull) do_pull=0 ;;
+      --force) force=1 ;;
+      -v|--verbose) verbose=1 ;;
       *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
     shift
@@ -132,52 +242,175 @@ cmd_sync() {
   rev="$(current_commit)"
   echo "Current jj commit (@): $rev"
 
-  local paths
-  paths="$(lfs_paths_at "$rev")"
-
-  if [[ -z "$paths" ]]; then
-    echo "No LFS-tracked paths at this commit. Nothing to do."
+  # Fast path: if this exact commit was already fully synced (sparse +
+  # fetch + smudge all completed) last time, a commit's content can never
+  # change, so there is nothing new to compute. Only applies to a default
+  # (pull-enabled) sync, since --no-pull runs are deliberately partial and
+  # must not be mistaken for a complete sync later.
+  local rev_cache="$CONF_DIR/last-synced-rev"
+  if [[ "$force" -eq 0 && "$do_pull" -eq 1 && -f "$rev_cache" ]] \
+     && [[ "$(cat "$rev_cache")" == "$rev" ]]; then
+    echo "Already fully synced at this commit — nothing to do (use --force to redo)."
     return 0
   fi
 
-  echo
-  echo "LFS-tracked paths at this commit:"
-  echo "$paths" | sed 's/^/  /'
-  echo
+  # Single batched call: gives every LFS-tracked path's oid, local-presence
+  # marker, and path in one subprocess, instead of one git invocation per
+  # file (which is what made earlier versions slow on large path sets).
+  local lfs_info
+  lfs_info="$(lfs_info_at "$rev")"
 
-  if supports_sparse_exclude; then
-    echo "Updating jj sparse patterns to exclude these paths..."
-    local args=()
-    while IFS= read -r p; do
-      [[ -z "$p" ]] && continue
-      args+=(--exclude "$p")
-    done <<< "$paths"
-    jj sparse set "${args[@]}"
-    echo "jj will no longer snapshot/commit these paths."
-  else
-    cat >&2 <<'EOF'
-WARNING: your jj version's `jj sparse set` doesn't support --exclude.
-Without it, this script can't safely stop jj from tracking these paths,
-which means smudged LFS content below could get swept into a jj commit.
-Consider upgrading jj, or handle sparse patterns manually before
-proceeding (see `jj sparse set --help`).
-EOF
-    read -r -p "Continue anyway and skip the sparse step? [y/N] " ans
-    [[ "$ans" =~ ^[Yy]$ ]] || exit 1
+  if [[ -z "$lfs_info" ]]; then
+    echo "No LFS-tracked paths at this commit. Nothing to do."
+    [[ "$do_pull" -eq 1 ]] && echo "$rev" > "$rev_cache"
+    return 0
   fi
 
-  if [[ "$do_pull" -eq 1 ]]; then
-    echo
-    echo "Fetching LFS objects for this commit..."
-    git_bare lfs fetch "$rev"
+  local paths
+  paths="$(cut -d' ' -f3- <<< "$lfs_info")"
 
-    echo "Smudging real content into the working copy..."
-    local file_args=()
+  if [[ "$verbose" -eq 1 ]]; then
+    echo
+    echo "LFS-tracked paths at this commit:"
+    echo "$paths" | sed 's/^/  /'
+    echo
+  else
+    local count
+    count="$(echo "$paths" | grep -c .)"
+    echo "$count LFS-tracked path(s) at this commit (use -v to list them)."
+  fi
+
+  if supports_sparse_exclude; then
+    # Available on some newer/forked jj builds with the "sparse v2" design.
+    # As of the current stable jj (and confirmed by users), this flag does
+    # NOT exist yet, so this branch is a forward-compat nicety, not the
+    # normal path — see the else branch below for what actually runs today.
+    echo "Updating jj sparse patterns (--exclude) to drop these paths..."
+    local exclude_args=()
     while IFS= read -r p; do
       [[ -z "$p" ]] && continue
-      file_args+=("$p")
+      exclude_args+=(--exclude "$p")
     done <<< "$paths"
-    git_bare_wt lfs checkout -- "${file_args[@]}"
+    jj sparse set "${exclude_args[@]}"
+  else
+    # Stable jj's `sparse set` only supports --add/--remove/--clear — a pure
+    # allow-list, no negation. So "include everything except the LFS paths"
+    # has to be built explicitly. Rather than listing every non-LFS file
+    # individually (which would mean tens of thousands of --add flags on a
+    # large repo, and — worse — that many patterns getting evaluated on
+    # every future jj command), we only expand directories that actually
+    # contain an LFS-tracked file, and leave every other directory as a
+    # single coarse include pattern.
+    echo "Building minimal sparse include list (jj has no sparse --exclude)..."
+
+    local all_paths_file lfs_paths_file include_paths
+    all_paths_file="$(mktemp)"
+    lfs_paths_file="$(mktemp)"
+    jj file list -r "$rev" > "$all_paths_file"
+    echo "$paths" > "$lfs_paths_file"
+
+    if command -v python3 >/dev/null 2>&1; then
+      include_paths="$(python3 - "$all_paths_file" "$lfs_paths_file" <<'PYEOF'
+import sys
+
+def main():
+    all_file, lfs_file = sys.argv[1], sys.argv[2]
+
+    with open(all_file) as f:
+        all_paths = [l.strip() for l in f if l.strip()]
+    with open(lfs_file) as f:
+        lfs_paths = set(l.strip() for l in f if l.strip())
+
+    # Every ancestor directory of every LFS file, e.g. for "a/b/c.bin":
+    # {"a", "a/b"}. Any directory in this set needs to be expanded one
+    # level further rather than included as a single coarse pattern.
+    lfs_ancestor_dirs = set()
+    for p in lfs_paths:
+        parts = p.split('/')
+        for i in range(1, len(parts)):
+            lfs_ancestor_dirs.add('/'.join(parts[:i]))
+
+    # Build a trie from the flat file list. Leaf nodes (empty dicts) are
+    # files; non-empty dicts are directories.
+    trie = {}
+    for path in all_paths:
+        node = trie
+        for part in path.split('/'):
+            node = node.setdefault(part, {})
+
+    results = []
+
+    def walk(node, prefix):
+        for name, subtree in node.items():
+            full = f"{prefix}/{name}" if prefix else name
+            if not subtree:
+                if full not in lfs_paths:
+                    results.append(full)
+            else:
+                if full in lfs_ancestor_dirs:
+                    walk(subtree, full)
+                else:
+                    results.append(full)
+
+    walk(trie, '')
+    for r in results:
+        print(r)
+
+if __name__ == '__main__':
+    main()
+PYEOF
+)"
+    else
+      echo "WARNING: python3 not found; falling back to a full per-file" >&2
+      echo "include list. On a repo with tens of thousands of files, this" >&2
+      echo "may noticeably slow down every future jj command. Install" >&2
+      echo "python3 for the compact directory-based version instead." >&2
+      local all_paths_sorted lfs_paths_sorted
+      all_paths_sorted="$(sort "$all_paths_file")"
+      lfs_paths_sorted="$(sort "$lfs_paths_file")"
+      include_paths="$(comm -23 <(echo "$all_paths_sorted") <(echo "$lfs_paths_sorted"))"
+    fi
+    rm -f "$all_paths_file" "$lfs_paths_file"
+
+    local include_args=(--clear)
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      include_args+=(--add "$p")
+    done <<< "$include_paths"
+
+    echo "Setting ${#include_args[@]} sparse pattern arguments..."
+    jj sparse set "${include_args[@]}"
+  fi
+  echo "jj will no longer snapshot/commit the LFS-tracked paths."
+
+  if [[ "$do_pull" -eq 1 ]]; then
+    # Fingerprint = oid+path pairs (marker excluded, since local-presence
+    # can fluctuate independent of "did the required content change"),
+    # sorted for order-independence. If this matches the last successful
+    # fetch+smudge, the actual LFS content required hasn't changed even
+    # though $rev has (e.g. a code-only commit elsewhere in the stack), so
+    # the slow part — fetch + copying objects — can be skipped entirely.
+    local fingerprint_cache="$CONF_DIR/last-lfs-fingerprint"
+    local current_fingerprint
+    current_fingerprint="$(cut -d' ' -f1,3- <<< "$lfs_info" | sort)"
+
+    if [[ "$force" -eq 0 && -f "$fingerprint_cache" ]] \
+       && diff -q <(echo "$current_fingerprint") "$fingerprint_cache" >/dev/null 2>&1; then
+      echo
+      echo "LFS content unchanged since last sync — skipping fetch/smudge"
+      echo "(use --force to redo anyway)."
+    else
+      echo
+      echo "Fetching LFS objects for this commit..."
+      git_bare_wt lfs fetch "$LFS_REMOTE" "$rev"
+
+      echo "Smudging real content into the working copy..."
+      manual_smudge "$lfs_info"
+
+      echo "$current_fingerprint" > "$fingerprint_cache"
+    fi
+
+    echo "$rev" > "$rev_cache"
   fi
 
   echo
@@ -199,7 +432,81 @@ cmd_status() {
   fi
   echo
   echo "Current jj sparse patterns:"
-  jj sparse list | sed 's/^/  /'
+  jj sparse list | sed 's/^/  /' || true
+}
+
+cmd_debug() {
+  local target="${1:-}"
+  if [[ -z "$target" ]]; then
+    echo "Usage: $SCRIPT_NAME debug <path>" >&2
+    exit 1
+  fi
+  # Normalize away a leading ./ so comparisons against jj/git output match.
+  target="${target#./}"
+
+  local rev
+  rev="$(current_commit)"
+  echo "Commit (@):   $rev"
+  echo "Target path:  $target"
+  echo
+
+  echo "1) Does jj track this path at this commit?"
+  local jj_hit
+  jj_hit="$(jj file list -r "$rev" -- "$target" 2>/dev/null || true)"
+  if echo "$jj_hit" | grep -qxF "$target"; then
+    echo "   YES"
+  else
+    echo "   NO — jj doesn't see this exact path as tracked at $rev."
+    echo "   Check for typos, a rename, or whether it exists at a different"
+    echo "   revision (try: jj file list -r $rev | grep -i \"\$(basename "$target")\")."
+  fi
+  echo
+
+  echo "2) Does git-lfs consider it LFS-tracked at this commit?"
+  local lfs_hit
+  lfs_hit="$(lfs_paths_at "$rev")"
+  if echo "$lfs_hit" | grep -qxF "$target"; then
+    echo "   YES — jj should be excluding it, and plain git-lfs should be"
+    echo "   responsible for its real content."
+  else
+    echo "   NO — at this commit, jj should be managing this file normally"
+    echo "   (i.e. it should NOT be sparse-excluded)."
+  fi
+  echo
+
+  echo "3) Is it covered by jj's current sparse patterns?"
+  echo "   Current patterns:"
+  jj sparse list 2>&1 | sed 's/^/     /' || true
+  echo "   (If step 2 said YES but this path — or an ancestor directory of"
+  echo "   it — isn't in this list, it's correctly excluded. If step 2 said"
+  echo "   NO but it's still missing from this list, something over-excluded"
+  echo "   it — likely a bug in the sparse-minimization step.)"
+  echo
+
+  echo "4) Is it present on disk right now?"
+  if [[ -e "$target" ]]; then
+    local size
+    size="$(wc -c < "$target" 2>/dev/null || echo '?')"
+    echo "   YES — $size bytes"
+    if head -c 200 -- "$target" 2>/dev/null | grep -q '^version https://git-lfs'; then
+      echo "   Contents look like an LFS pointer (not smudged into real content yet)."
+    fi
+  else
+    echo "   NO — not present in the working directory at all."
+  fi
+  echo
+
+  echo "5) What does .gitattributes (as seen by git) say about it?"
+  git_bare_wt check-attr filter -- "$target" 2>&1 | sed 's/^/   /' || true
+  echo
+
+  echo "6) Is the object actually available locally for git-lfs to write?"
+  git_bare_wt lfs ls-files -l -- "$target" 2>&1 | sed 's/^/   /' || true
+  echo "   (An asterisk after the OID means the full object is present"
+  echo "   locally; a minus means only the pointer is present — if it's a"
+  echo "   minus here, 'lfs fetch' isn't actually retrieving this object,"
+  echo "   which points at a remote/auth/pruned-object issue rather than"
+  echo "   anything in this script.)"
 }
 
 main() {
@@ -221,6 +528,11 @@ main() {
       shift
       load_conf
       cmd_status "$@"
+      ;;
+    debug)
+      shift
+      load_conf
+      cmd_debug "$@"
       ;;
     -h|--help|"")
       usage
